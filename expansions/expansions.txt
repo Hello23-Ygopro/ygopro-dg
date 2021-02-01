@@ -1,0 +1,1 @@
+You can put additional card databases (.cdb) here.
