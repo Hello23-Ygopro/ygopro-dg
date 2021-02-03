@@ -2,9 +2,8 @@
 local scard,sid=aux.GetID()
 function scard.initial_effect(c)
 	--play digimon
-	local e1=aux.AddMainEffect(c,aux.TargetPlayDigimonOperation(POS_FACEUP_UNSUSPENDED))
+	local e1=aux.AddMainEffect(c,aux.TargetPlayDigimonOperation(POS_FACEUP_UNSUSPENDED),scard.tg1)
 	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e1:SetTarget(scard.tg1)
 	--activate effect
 	aux.AddSecurityEffect(c,aux.SelfActivateMainOperation)
 end

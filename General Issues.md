@@ -21,7 +21,7 @@
 - Trash (Recycle Bin) is above the Deck instead of below it.
 - The Security Stack is on the top right instead of the middle left.
 - The Breeding Area is on the top middle instead of the bottom middle.
-- Check each player's life points to keep track of the amount of memory they have.
+- Check each player's Memory Gauge card to keep track of the amount of memory they have.
 - [ ] **You can't have more than 5 Digimon in the Battle Area**
 - There's no limit to the number of Digimon in the Battle Area when playing the actual card game.
 - You can't play a Digimon from your hand during the Main Phase, while you have 4 Digimon in your Battle Area.

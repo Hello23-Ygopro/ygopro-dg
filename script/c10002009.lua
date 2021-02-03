@@ -22,5 +22,5 @@ function scard.op1(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.SelectMatchingCard(tp,aux.BattleAreaFilter(scard.tgfilter),tp,0,LOCATION_MZONE,1,1,nil)
 	if g:GetCount()==0 then return end
 	Duel.HintSelection(g)
-	Duel.DiscardDigivolutionCard(tp,g,aux.TRUE,2,2,REASON_EFFECT)
+	Duel.TrashDigivolutionCard(tp,g,aux.TRUE,2,2,REASON_EFFECT)
 end

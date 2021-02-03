@@ -9,11 +9,12 @@
 2. Click on `Deck Edit` to build your deck. Remember to add 1 _Digimon Card Game Rules_!<br>
 If you do not build your deck according to the following rules, you will lose the game and have to rebuild your deck:<br>
 ● Your [deck](https://digimoncardgame.fandom.com/wiki/General_Rules#Decks) must be exactly 50 cards.<br>
+● Your [Digi-Egg](https://digimoncardgame.fandom.com/wiki/Card_Types#Digi-Egg) deck cannot have more than 5 cards.
 3. Shuffle your deck and Digi-Egg deck, draw 5 cards, and place them face down in your [Security Stack](https://digimoncardgame.fandom.com/wiki/General_Rules#The_Playing_Field) without looking at them. Then, draw 5 cards. This is your starting hand.<br>
-4. During your Unsuspend Phase, unsuspend all of your suspended cards.<br>
+4. During your [Unsuspend Phase](https://digimoncardgame.fandom.com/wiki/General_Rules#Game_Flow), unsuspend all of your suspended cards.<br>
 5. During your [Draw Phase](https://digimoncardgame.fandom.com/wiki/General_Rules#Game_Flow), draw 1 card. The player who goes first does not draw a card. There is no limit to how many cards you can have in your hand.<br>
 6. During your [Breeding Phase](https://digimoncardgame.fandom.com/wiki/General_Rules#Game_Flow), you can do only one of the following once per turn:<br>
-● Hatch a [Digi-Egg](https://digimoncardgame.fandom.com/wiki/Card_Types#Digi-Egg). This can only be done when there are no [Digimon](https://digimoncardgame.fandom.com/wiki/Card_Types#Digimon) in the [Breeding Area](https://digimoncardgame.fandom.com/wiki/General_Rules#The_Playing_Field). Flip one card face up from the top of the Digi-Egg deck and place it in the Breeding Area.<br>
+● Hatch a Digi-Egg. This can only be done when there are no [Digimon](https://digimoncardgame.fandom.com/wiki/Card_Types#Digimon) in the [Breeding Area](https://digimoncardgame.fandom.com/wiki/General_Rules#The_Playing_Field). Flip one card face up from the top of the Digi-Egg deck and place it in the Breeding Area.<br>
 ● Move a Digimon out of the Breeding Area to the [Battle Area](https://digimoncardgame.fandom.com/wiki/General_Rules#The_Playing_Field) once they have digivolved into a level 3 or higher Digimon. This is not considered playing the Digimon, so [On Play] effects will not activate. Digimon that are level 2 or lower cannot enter the Battle Area.<br>
 ● Proceed to the next phase without doing anything.<br>
 7. During your [Main Phase](https://digimoncardgame.fandom.com/wiki/General_Rules#Main_Phase), you can perform as many of the following actions as you like, in any order:<br>
@@ -85,10 +86,10 @@ If you do not build your deck according to the following rules, you will lose th
 	- `on script` = Attribute
 	- `on script` = Type
 - `0x1041	Monster+Fusion+Tuner` = Digi-Egg that has no effect
-- `0x5	Monster+Trap` = Tamer
+- `0x3	Monster+Spell` = Tamer
 	- `Attribute` = Color
 	- `Level` = Play Cost
-- `0x3	Monster+Spell` = Option
+- `0x5	Monster+Trap` = Option
 	- `Attribute` = Color
 	- `Level` = Play Cost
 - `0x800	Gemini` = Multicolor card

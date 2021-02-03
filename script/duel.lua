@@ -26,10 +26,33 @@ function Duel.SpecialSummon(targets,sumtype,sumplayer,target_player,nocheck,noli
 	return res
 end
 --change the position of a card
---Note: Overwritten so that only two arguments are required
+--Note: Overwritten to allow suspending a card in LOCATION_SZONE
 local duel_change_position=Duel.ChangePosition
 function Duel.ChangePosition(targets,pos)
-	return duel_change_position(targets,pos)
+	if type(targets)=="Card" then targets=Group.FromCards(targets) end
+	local res=0
+	for tc in aux.Next(targets) do
+		if tc:IsFaceup() and tc:IsLocation(LOCATION_SZONE) and tc:IsSequenceBelow(4) then
+			if tc:IsAbleToSuspend() and pos==POS_FACEUP_SUSPENDED then
+				--workaround to suspend a card in LOCATION_SZONE
+				tc:RegisterFlagEffect(FLAG_CODE_SUSPENDED,RESET_EVENT+RESETS_STANDARD,EFFECT_FLAG_CLIENT_HINT,1,0,DESC_SUSPENDED)
+				Duel.HintSelection(Group.FromCards(tc))
+				Duel.Hint(HINT_OPSELECTED,1-tc:GetControler(),DESC_SUSPENDED)
+				res=res+1
+			elseif tc:IsAbleToUnsuspend() and pos==POS_FACEUP_UNSUSPENDED then
+				--workaround to unsuspend a card in LOCATION_SZONE
+				tc:ResetFlagEffect(FLAG_CODE_SUSPENDED)
+				Duel.HintSelection(Group.FromCards(tc))
+				Duel.Hint(HINT_OPSELECTED,1-tc:GetControler(),DESC_UNSUSPENDED)
+				res=res+1
+			end
+		else
+			if not tc:IsLocation(LOCATION_SZONE) then
+				res=res+duel_change_position(tc,pos)
+			end
+		end
+	end
+	return res
 end
 --draw a card
 --Note: Overwritten to check if a player's deck size is less than the number of cards they will draw
@@ -114,7 +137,7 @@ end
 function Duel.IsMemoryBelow(player,count)
 	return Duel.GetMemory(player)<=count
 end
---check if a player's memory greater than or equal to a given value
+--check if a player's memory is greater than or equal to a given value
 function Duel.IsMemoryAbove(player,count)
 	return Duel.GetMemory(player)>=count
 end
@@ -162,7 +185,7 @@ function Duel.SetMemory(player,count)
 	end
 end
 --send a card from the top of a player's deck to the security stack
-function Duel.SendDecktoptoSecurity(player,count,reason)
+function Duel.SendDecktoSecurity(player,count,reason)
 	local g=Duel.GetDecktopGroup(player,count)
 	Duel.DisableShuffleCheck()
 	return Duel.SendtoSecurity(g,POS_FACEDOWN,reason)
@@ -178,7 +201,7 @@ function Duel.SendtoBreeding(targets)
 	end
 	return res
 end
---check if a player has an unoccupied zone in the breeding area to hatch a digimon
+--check if a player has an unoccupied zone in the breeding area to hatch a digi-egg
 function Duel.CheckBreedingArea(player)
 	return not Duel.GetFirstMatchingCard(Card.IsSequence,player,LOCATION_MZONE,0,nil,SEQ_MZONE_EX_LEFT)
 end
@@ -214,18 +237,18 @@ function Duel.PlayDigimon(targets,play_player,pos,playtype,zone)
 	--targets: the digimon to play
 	--play_player: the player who plays the digimon
 	--pos: POS_FACEUP_UNSUSPENDED to play in unsuspended or POS_FACEUP_SUSPENDED to play in suspended
-	--playtype: how the pokemon is played (SUMMON_TYPE)
+	--playtype: how the digimon is played (SUMMON_TYPE)
 	--zone: the zone to put the digimon in
 	pos=pos or POS_FACEUP_UNSUSPENDED
 	playtype=playtype or 0
 	zone=zone or ZONE_BATTLE
 	return Duel.SpecialSummon(targets,playtype,play_player,play_player,false,false,pos,zone)
 end
---digivolve a card
+--digivolve a digi-egg or digimon
 function Duel.Digivolve(c,targets,player)
 	--c: the digimon to play
-	--targets: the digimon to digivolve
-	--player: the player who digivolves the digimon
+	--targets: the digi-egg or digimon to digivolve
+	--player: the player who digivolves the digi-egg or digimon
 	if type(targets)=="Card" then targets=Group.FromCards(targets) end
 	local res=0
 	c:SetMaterial(targets) --required for EVENT_BE_MATERIAL
@@ -249,9 +272,9 @@ function Duel.Digivolve(c,targets,player)
 	return res
 end
 --trash a digivolution card on the bottom of a digimon
-function Duel.DiscardDigivolutionCard(player,targets,f,min,max,reason,ex,...)
+function Duel.TrashDigivolutionCard(player,targets,f,min,max,reason,ex,...)
 	--player: the player who trashes the card
-	--targets: the digimon whose digivolution card to
+	--targets: the digimon whose digivolution card to trash
 	--f: filter function if the card is specified
 	--min,max: the number of cards to trash
 	--reason: the reason for trashing the card
@@ -261,6 +284,8 @@ function Duel.DiscardDigivolutionCard(player,targets,f,min,max,reason,ex,...)
 	for tc in aux.Next(targets) do
 		local g=tc:GetDigivolutionGroup()
 		if g:GetCount()==0 then break end
+		--only include the bottom digivolution cards
+		g=g:Filter(Card.IsSequenceAbove,nil,g:GetCount()-max)
 		Duel.Hint(HINT_SELECTMSG,player,HINTMSG_TRASH)
 		local sg=g:FilterSelect(player,f,min,max,ex,...)
 		res=res+Duel.Trash(sg,reason)
@@ -268,13 +293,13 @@ function Duel.DiscardDigivolutionCard(player,targets,f,min,max,reason,ex,...)
 	return res
 end
 --play a tamer
-function Duel.PlayTamer(targets,play_player)
+function Duel.PlayTamer(targets,player)
 	--targets: the tamer to play
-	--play_player: the player who plays the tamer
+	--player: the player who plays the tamer
 	if type(targets)=="Card" then targets=Group.FromCards(targets) end
 	local res=0
 	for tc in aux.Next(targets) do
-		if Duel.MoveToField(tc,play_player,play_player,LOCATION_SZONE,POS_FACEUP,true) then
+		if Duel.MoveToField(tc,player,player,LOCATION_SZONE,POS_FACEUP,true) then
 			res=res+1
 		end
 	end

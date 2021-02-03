@@ -4,22 +4,24 @@ MAX_ID		=268435455	--9 digit, by DataManager::GetDesc()
 MAX_COUNTER	=65535		--max number for adding/removing counters, by card::add_counter(), field::remove_counter()
 MAX_NUMBER	=999999999	--Max number allowed in YGOPro
 --Card ID
+CARD_RULES				=10000000	--Rule (Unofficial card)
 CARD_MEMORY_GAUGE		=10000001	--Memory Gauge (Unofficial card)
 CARD_METALGREYMON		=10001009	--EVENT_CUSTOM+EVENT_BECOME_BLOCKED
 --Flag Effect Code (for Card.RegisterFlagEffect, Duel.RegisterFlagEffect)
-FLAG_CODE_RULE			=10000000	--Prevents registering rules twice
-FLAG_CODE_PLAY_EX		=10000001	--Workaround to play Digimon in extra monster zone
-FLAG_CODE_OVERSPENT		=10000002	--Prevents ending the turn if the previous turn was ended due to overspending memory
+FLAG_CODE_RULES		=10000000	--Prevents registering rules twice
+FLAG_CODE_PLAY_EX	=10000001	--Workaround to play Digimon in extra monster zone
+FLAG_CODE_OVERSPENT	=10000002	--Prevents ending the turn if the previous turn was ended due to overspending memory
+FLAG_CODE_SUSPENDED	=10000003	--Workaround to suspend a card in LOCATION_SZONE (see Duel.ChangePosition)
 --Location
 LOCATION_ALL			=0xff	--All locations
 LOCATION_DECK			=0x01	--Deck
 LOCATION_HAND			=0x02	--Hand
 LOCATION_MZONE			=0x04	--Battle Area (sequences 0~4)
-LOCATION_SZONE			=0x08	--Spell & Trap Zone
+LOCATION_SZONE			=0x08	--Battle Area (Tamer cards) (sequences 0~4)
 LOCATION_TRASH			=0x10	--Trash
 LOCATION_SECURITY		=0x20	--Security Stack
 LOCATION_DIGIEGG		=0x40	--Digi-Egg Deck
-LOCATION_DIGIVOLUTION	=0x80	--Xyz Material
+LOCATION_DIGIVOLUTION	=0x80	--Digivolution cards
 LOCATION_ONFIELD		=0x0c	--On the field (LOCATION_MZONE+LOCATION_SZONE)
 --Location (for redirect)
 --If you specify LOCATION_DECK in the redirection effect, the card will return to the top of the Deck
@@ -59,8 +61,8 @@ POS_SUSPENDED				=0xc	--(unused) Suspended
 --Card Type
 TYPE_ALL			=0x4ffffff	--All Card Types
 TYPE_MONSTER		=0x1		--(unused)
-TYPE_OPTION			=0x2		--Option
-TYPE_TAMER			=0x4		--Tamer
+TYPE_TAMER			=0x2		--Tamer
+TYPE_OPTION			=0x4		--Option
 TYPE_SECURITY		=0x10		--Security
 TYPE_DIGIMON		=0x20		--Digimon
 TYPE_DIGIEGG		=0x40		--Digi-Egg
@@ -309,13 +311,13 @@ EFFECT_TYPE_SINGLE		=0x0001	--Effect applied to only a single card on the field
 EFFECT_TYPE_FIELD		=0x0002	--Effect applied to all cards/players in a location
 EFFECT_TYPE_EQUIP		=0x0004	--(unused)
 EFFECT_TYPE_ACTIONS		=0x0008	--(unused)
-EFFECT_TYPE_ACTIVATE	=0x0010	--Tamer activation
+EFFECT_TYPE_ACTIVATE	=0x0010	--(unused)
 EFFECT_TYPE_FLIP		=0x0020	--(unused)
 EFFECT_TYPE_IGNITION	=0x0040	--(unused)
 EFFECT_TYPE_TRIGGER_O	=0x0080	--Optional Trigger Effect
 EFFECT_TYPE_QUICK_O		=0x0100	--Optional Quick Effect
 EFFECT_TYPE_TRIGGER_F	=0x0200	--Mandatory Trigger Effect
-EFFECT_TYPE_QUICK_F		=0x0400	--(unused)
+EFFECT_TYPE_QUICK_F		=0x0400	--Mandatory Quick Effect
 EFFECT_TYPE_CONTINUOUS	=0x0800	--Continuous Effect, non-Chaining effect
 EFFECT_TYPE_XMATERIAL	=0x1000	--(unused)
 EFFECT_TYPE_GRANT		=0x2000	--Effect granted to another card
@@ -372,9 +374,9 @@ EFFECT_DISABLE_TRAPMONSTER			=10		--(unused)
 EFFECT_CANNOT_INACTIVATE			=12		--(unused)
 EFFECT_CANNOT_DISEFFECT				=13		--(unused)
 EFFECT_CANNOT_CHANGE_POSITION		=14		--Cannot change position
-EFFECT_TRAP_ACT_IN_HAND				=15		--Trap can be activated from hand
+EFFECT_TRAP_ACT_IN_HAND				=15		--(unused)
 EFFECT_TRAP_ACT_IN_SET_TURN			=16		--(unused)
-EFFECT_REMAIN_FIELD					=17		--Remains on the field after activation
+EFFECT_REMAIN_FIELD					=17		--(unused)
 EFFECT_MONSTER_SSET					=18		--(unused)
 EFFECT_CANNOT_SUMMON				=20		--Cannot Normal Summon monsters
 EFFECT_CANNOT_FLIP_SUMMON			=21		--(unused)
@@ -390,7 +392,7 @@ EFFECT_SPSUMMON_CONDITION			=30		--(unused)
 EFFECT_REVIVE_LIMIT					=31		--(unused)
 EFFECT_SUMMON_PROC					=32		--(unused)
 EFFECT_LIMIT_SUMMON_PROC			=33		--(unused)
-EFFECT_PLAY_PROC					=34		--Digimon play procedure
+EFFECT_SPSUMMON_PROC				=34		--(unused)
 EFFECT_EXTRA_SET_COUNT				=35		--(unused)
 EFFECT_SET_PROC						=36		--(unused)
 EFFECT_LIMIT_SET_PROC				=37		--(unused)
@@ -500,7 +502,7 @@ EFFECT_SKIP_DP						=180	--Skip Draw Phase
 EFFECT_SKIP_SP						=181	--Skip Breeding Phase
 EFFECT_SKIP_M1						=182	--(unused) Skip Main Phase 1
 EFFECT_SKIP_BP						=183	--(unused) Skip Battle Phase
-EFFECT_SKIP_M2						=184	--(unused) Skip Main Phase 2
+EFFECT_SKIP_M2						=184	--Skip Main Phase 2
 EFFECT_CANNOT_BP					=185	--(unused) Cannot conduct Battle Phase
 EFFECT_CANNOT_M2					=186	--Cannot conduct Main Phase 2
 EFFECT_CANNOT_EP					=187	--(unused) Cannot conduct End Phase
@@ -629,10 +631,11 @@ EFFECT_ADD_LINKMARKER				=423	--(unused)
 EFFECT_REMOVE_LINKMARKER			=424	--(unused)
 EFFECT_CHANGE_LINKMARKER			=425	--(unused)
 --The following is only available in YGOPro DG
-EFFECT_UPDATE_DIGILEVEL				=500	--(reserved) Increase/decrease level
-EFFECT_CHANGE_DIGILEVEL				=501	--(reserved) Set level
-EFFECT_UPDATE_CHECK					=502	--Increase/decrease checking ("Greymon" ST1-07)
-EFFECT_CANNOT_BLOCK					=503	--Cannot block ("Sorrow Blue" ST2-14)
+EFFECT_UPDATE_DIGILEVEL				=600	--(reserved) Increase/decrease level
+EFFECT_CHANGE_DIGILEVEL				=601	--(reserved) Set level
+EFFECT_UPDATE_CHECK					=602	--Increase/decrease checking count ("Greymon" ST1-07)
+EFFECT_CHANGE_CHECK					=603	--(reserved) Set checking count
+EFFECT_CANNOT_BLOCK					=604	--Cannot block ("Sorrow Blue" ST2-14)
 --Event Code
 --Events that can be used as a trigger for Trigger Effects
 EVENT_STARTUP				=1000	--(unused)
@@ -752,21 +755,20 @@ DOUBLE_DAMAGE	=0x80000000	--(unused, not available in YGOPro Percy)
 HALF_DAMAGE		=0x80000001	--(unused, not available in YGOPro Percy)
 --Hint Message
 --Message displayed at the top of the screen
-HINTMSG_ANNOUNCECHOOSE	=500	--Select how many cards?
-HINTMSG_DIGIVOLVE		=501	--Select a Digimon to Digivolve.
-HINTMSG_GAINPOWER		=502	--Select a Digimon to gain power.
-HINTMSG_DELETE			=503	--Select a Digimon to delete.
-HINTMSG_DIGIMON			=504	--Select a Digimon.
-HINTMSG_TRASH			=505	--Select a card to trash.
-HINTMSG_TARGET			=506	--Select a card to target.
-HINTMSG_PLAY			=507	--Select a card to play.
-HINTMSG_RTOHAND			=508	--Select a card to return to the hand.
+HINTMSG_DIGIVOLVE		=500	--Select a Digimon to Digivolve.
+HINTMSG_GAINPOWER		=501	--Select a Digimon to gain power.
+HINTMSG_DELETE			=502	--Select a Digimon to delete.
+HINTMSG_DIGIMON			=503	--Select a Digimon.
+HINTMSG_TRASH			=504	--Select a card to trash.
+HINTMSG_TARGET			=505	--Select a card to target.
+HINTMSG_PLAY			=506	--Select a card to play.
+HINTMSG_RTOHAND			=507	--Select a card to return to its owner's hand.
 --Information displayed in a dialog box
-ERROR_DECKCOUNT	=1450	--Your deck must be exactly 50 cards!
-ERROR_NOBZONES	=1630	--You may have up to 5 Digimon in the Battle Area when playing with this app. However, there is no limit when playing the actual card game.
-ERROR_NOTARGETS	=1631	--There is no applicable card.
+ERROR_DECKCOUNT		=1450	--Your deck must have exactly 50 cards!
+ERROR_DIGIEGGCOUNT	=1451	--Your Digi-Egg deck can't have more than 5 cards!
+ERROR_NOBZONES		=1630	--You may have up to 5 Digimon in the Battle Area when playing with this app. However, there is no limit when playing the actual card game.
+ERROR_NOTARGETS		=1631	--There is no applicable card.
 --Yes No Message (for Duel.SelectYesNo)
-YESNOMSG_CHOOSE	=600	--(reserved) Select a card? (Group.RandomSelect)
 --Option (for Duel.SelectOption)
 OPTION_HEADS		=60		--(unused)
 OPTION_TAILS		=61		--(unused)
@@ -774,7 +776,9 @@ OPTION_HATCH		=110	--Hatch
 OPTION_MOVE			=111	--Move
 OPTION_SKIP			=112	--Skip
 --Description (for SetDescription, EFFECT_FLAG_CLIENT_HINT)
-DESC_SUMMONSICKNESS		=300	--Summoning Sickness
+DESC_UNSUSPENDED		=300	--Unsuspended
+DESC_SUSPENDED			=301	--Suspended
+DESC_SUMMONSICKNESS		=302	--Summoning Sickness
 DESC_PLAY				=1152	--Play
 DESC_DIGIVOLVE			=1170	--Digivolve
 DESC_UNSUSPEND_PHASE	=1650	--Unsuspend all of your suspended cards.
@@ -847,7 +851,7 @@ ACTIVITY_SPSUMMON		=3	--(unused)
 ACTIVITY_FLIPSUMMON		=4	--(unused)
 ACTIVITY_ATTACK			=5	--(unused)
 ACTIVITY_BATTLE_PHASE	=6	--(unused, not available in Duel.AddCustomActivityCounter)
-ACTIVITY_CHAIN			=7	--Check if a card or effect was activated (only available in Duel.AddCustomActivityCounter)
+ACTIVITY_CHAIN			=7	--(unused, only available in Duel.AddCustomActivityCounter)
 --Announce Type
 ANNOUNCE_CARD			=0x7	--(unused, only available in YGOPro Percy)
 ANNOUNCE_CARD_FILTER	=0x8	--(unused, only available in YGOPro Percy)

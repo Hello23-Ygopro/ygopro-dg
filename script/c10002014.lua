@@ -5,7 +5,7 @@ function scard.initial_effect(c)
 	local e1=aux.AddMainEffect(c,scard.op1,scard.tg1)
 	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	--gain effect
-	local e2=aux.AddSecurityEffect(c,scard.op1,scard.tg1)
+	local e2=aux.AddSecurityEffect(c,scard.op2,scard.tg1)
 	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
 end
 --gain effect
@@ -16,10 +16,19 @@ scard.tg1=aux.TargetCardFunction(PLAYER_SELF,aux.BattleAreaFilter(Card.effilter)
 function scard.op1(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if not tc or not tc:IsRelateToEffect(e) then return end
-	local reset_count=(Duel.GetTurnPlayer()~=tp and 3 or 2)
-	local c=e:GetHandler()
+	local reset_count=(Duel.GetTurnPlayer()~=tp and 2 or 1)
+	scard.gain_effect(e:GetHandler(),tc,RESET_PHASE+PHASE_END+RESET_OPPO_TURN,reset_count)
+end
+--gain effect
+function scard.op2(e,tp,eg,ep,ev,re,r,rp)
+	local tc=Duel.GetFirstTarget()
+	if not tc or not tc:IsRelateToEffect(e) then return end
+	local reset_count=(Duel.GetTurnPlayer()==tp and 2 or 1)
+	scard.gain_effect(e:GetHandler(),tc,RESET_PHASE+PHASE_END+RESET_SELF_TURN,reset_count)
+end
+function scard.gain_effect(c,tc,reset_flag,reset_count)
 	--cannot attack
-	aux.AddTempEffectCustom(c,tc,EFFECT_CANNOT_ATTACK,RESET_PHASE+PHASE_END+RESET_OPPO_TURN,reset_count)
+	aux.AddTempEffectCustom(c,tc,EFFECT_CANNOT_ATTACK,reset_flag,reset_count)
 	--cannot block
-	aux.AddTempEffectCustom(c,tc,EFFECT_CANNOT_BLOCK,RESET_PHASE+PHASE_END+RESET_OPPO_TURN,reset_count)
+	aux.AddTempEffectCustom(c,tc,EFFECT_CANNOT_BLOCK,reset_flag,reset_count)
 end

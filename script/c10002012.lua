@@ -5,7 +5,7 @@ function scard.initial_effect(c)
 	aux.EnableTamerAttribute(c)
 	--gain memory
 	local e1=aux.AddTriggerEffect(c,0,EVENT_UNSUSPEND_PHASE,aux.DuelOperation(Duel.AddMemory,PLAYER_SELF,1))
-	--e1:SetCountLimit(1)
+	e1:SetCountLimit(1)
 	e1:SetCondition(scard.con1)
 	--play tamer
 	aux.AddSecurityEffect(c,aux.TamerOperation)

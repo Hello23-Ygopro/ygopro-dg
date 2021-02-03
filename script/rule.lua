@@ -1,10 +1,6 @@
 Rule={}
 --register rules
---[[
-	Not fully implemented:
-	* Tap a card to have it attack
-	* The player who wins Rock Paper Scissors doesn't automatically go first
-]]
+--Not fully implemented: Tap a card to have it attack
 function Rule.RegisterRules(c)
 	local e1=Effect.CreateEffect(c)
 	e1:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_NO_TURN_RESET)
@@ -16,8 +12,8 @@ function Rule.RegisterRules(c)
 	c:RegisterEffect(e1)
 end
 function Rule.ApplyRules(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetFlagEffect(PLAYER_ONE,FLAG_CODE_RULE)>0 then return end
-	Duel.RegisterFlagEffect(PLAYER_ONE,FLAG_CODE_RULE,0,0,0)
+	if Duel.GetFlagEffect(PLAYER_ONE,FLAG_CODE_RULES)>0 then return end
+	Duel.RegisterFlagEffect(PLAYER_ONE,FLAG_CODE_RULES,0,0,0)
 	--remove rules
 	Rule.remove_rules(PLAYER_ONE)
 	Rule.remove_rules(PLAYER_TWO)
@@ -33,15 +29,20 @@ function Rule.ApplyRules(e,tp,eg,ep,ev,re,r,rp)
 	--check deck size
 	local b1=Duel.GetFieldGroupCount(PLAYER_ONE,LOCATION_DECK,0)~=50
 	local b2=Duel.GetFieldGroupCount(PLAYER_TWO,LOCATION_DECK,0)~=50
+	--check digi-egg deck size
+	local b3=Duel.GetFieldGroupCount(PLAYER_ONE,LOCATION_DIGIEGG,0)>5
+	local b4=Duel.GetFieldGroupCount(PLAYER_TWO,LOCATION_DIGIEGG,0)>5
 	if b1 then Duel.Hint(HINT_MESSAGE,PLAYER_ONE,ERROR_DECKCOUNT) end
 	if b2 then Duel.Hint(HINT_MESSAGE,PLAYER_TWO,ERROR_DECKCOUNT) end
-	if b1 and b2 then
+	if b3 then Duel.Hint(HINT_MESSAGE,PLAYER_ONE,ERROR_DIGIEGGCOUNT) end
+	if b4 then Duel.Hint(HINT_MESSAGE,PLAYER_TWO,ERROR_DIGIEGGCOUNT) end
+	if (b1 and b2) or (b3 and b4) then
 		Duel.Win(PLAYER_NONE,WIN_REASON_INVALID)
 		return
-	elseif b1 then
+	elseif b1 or b3 then
 		Duel.Win(PLAYER_TWO,WIN_REASON_INVALID)
 		return
-	elseif b2 then
+	elseif b2 or b4 then
 		Duel.Win(PLAYER_ONE,WIN_REASON_INVALID)
 		return
 	end
@@ -52,8 +53,8 @@ function Rule.ApplyRules(e,tp,eg,ep,ev,re,r,rp)
 	Duel.SetMemory(PLAYER_ONE,0)
 	Duel.SetMemory(PLAYER_TWO,0)
 	--set security cards
-	Duel.SendDecktoptoSecurity(PLAYER_ONE,5,REASON_RULE)
-	Duel.SendDecktoptoSecurity(PLAYER_TWO,5,REASON_RULE)
+	Duel.SendDecktoSecurity(PLAYER_ONE,5,REASON_RULE)
+	Duel.SendDecktoSecurity(PLAYER_TWO,5,REASON_RULE)
 	--draw starting hand
 	Duel.Draw(PLAYER_ONE,5,REASON_RULE)
 	Duel.Draw(PLAYER_TWO,5,REASON_RULE)
@@ -133,7 +134,7 @@ function Rule.ApplyRules(e,tp,eg,ep,ev,re,r,rp)
 	e9:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 	e9:SetCode(EVENT_PHASE+PHASE_END)
 	e9:SetCountLimit(1)
-	e9:SetOperation(Rule.PassTurnOperation)
+	e9:SetOperation(Rule.PassOperation)
 	Duel.RegisterEffect(e9,0)
 	--delete 0 digimon power
 	local e10=Effect.GlobalEffect()
@@ -176,7 +177,7 @@ function Rule.ApplyRules(e,tp,eg,ep,ev,re,r,rp)
 end
 --remove rules
 function Rule.remove_rules(tp)
-	local g=Duel.GetMatchingGroup(Card.IsCode,tp,LOCATION_ALL,0,nil,10000000)
+	local g=Duel.GetMatchingGroup(Card.IsCode,tp,LOCATION_ALL,0,nil,CARD_RULES)
 	if g:GetCount()>0 then
 		Duel.DisableShuffleCheck()
 		Duel.SendtoDeck(g,PLAYER_OWNER,SEQ_DECK_UNEXIST,REASON_RULE)
@@ -207,15 +208,15 @@ function Rule.shuffle_digiegg_deck(tp)
 end
 --unsuspend phase
 function Rule.UnsuspendCondition(e)
-	return Duel.IsExistingMatchingCard(Card.IsAbleToUnsuspend,Duel.GetTurnPlayer(),LOCATION_MZONE,0,1,nil)
+	return Duel.IsExistingMatchingCard(Card.IsAbleToUnsuspendRule,Duel.GetTurnPlayer(),LOCATION_ONFIELD,0,1,nil)
 end
 function Rule.UnsuspendOperation(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetMatchingGroup(Card.IsAbleToUnsuspend,Duel.GetTurnPlayer(),LOCATION_MZONE,0,nil)
+	local g=Duel.GetMatchingGroup(Card.IsAbleToUnsuspendRule,Duel.GetTurnPlayer(),LOCATION_ONFIELD,0,nil)
 	Duel.ChangePosition(g,POS_FACEUP_UNSUSPENDED)
 end
 --breeding phase
 function Rule.MoveDigimonFilter(c)
-	return c:IsSequence(SEQ_MZONE_EX_LEFT) and c:IsDigiLevelAbove(3)
+	return c:IsFaceup() and c:IsDigiLevelAbove(3) and c:IsSequence(SEQ_MZONE_EX_LEFT)
 end
 function Rule.BreedingOperation(e,tp,eg,ep,ev,re,r,rp)
 	local turnp=Duel.GetTurnPlayer()
@@ -348,7 +349,7 @@ function Rule.ResolveOperation2(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 --pass turn
-function Rule.PassTurnOperation(e,tp,eg,ep,ev,re,r,rp)
+function Rule.PassOperation(e,tp,eg,ep,ev,re,r,rp)
 	local turnp=Duel.GetTurnPlayer()
 	if Duel.GetFlagEffect(turnp,FLAG_CODE_OVERSPENT)==0 then
 		Duel.SetMemory(turnp,0)
@@ -440,9 +441,12 @@ function Rule.cannot_main_phase2()
 	local e1=Effect.GlobalEffect()
 	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
 	e1:SetType(EFFECT_TYPE_FIELD)
-	e1:SetCode(EFFECT_CANNOT_M2)
+	e1:SetCode(EFFECT_SKIP_M2)
 	e1:SetTargetRange(1,1)
 	Duel.RegisterEffect(e1,0)
+	local e2=e1:Clone()
+	e2:SetCode(EFFECT_CANNOT_M2)
+	Duel.RegisterEffect(e2,0)
 end
 --cannot change position
 function Rule.cannot_change_position()

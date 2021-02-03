@@ -11,6 +11,7 @@ function scard.op1(e,tp,eg,ep,ev,re,r,rp)
 	local reset_count=(Duel.GetTurnPlayer()~=tp and 2 or 1)
 	scard.gain_effect(e:GetHandler(),tp,RESET_PHASE+PHASE_END+RESET_OPPO_TURN,reset_count)
 end
+--gain effect
 function scard.op2(e,tp,eg,ep,ev,re,r,rp)
 	scard.gain_effect(e:GetHandler(),tp,RESET_PHASE+PHASE_END,1)
 end

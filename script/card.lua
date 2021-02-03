@@ -18,7 +18,7 @@ function Card.IsAttack(c,atk)
 		return c:GetAttack()==atk
 	end
 end
---check if a card has a particular property
+--check if a card has a given property
 --Note: Overwritten to check for an infinite number of properties
 local card_is_set_card=Card.IsSetCard
 function Card.IsSetCard(c,...)
@@ -69,10 +69,54 @@ function Card.IsLevelAbove(c,lv)
 	return c:GetLevel()>=lv
 end
 Card.IsPlayCostAbove=Card.IsLevelAbove
+--get a card's position
+--Note: Overwritten to check if a card is suspended in LOCATION_SZONE
+local card_get_position=Card.GetPosition
+function Card.GetPosition(c)
+	local res=0
+	if c:IsFaceup() and c:IsLocation(LOCATION_SZONE) and c:IsSequenceBelow(4) then
+		--workaround to check if a card in LOCATION_SZONE is unsuspended
+		if c:GetFlagEffect(FLAG_CODE_SUSPENDED)==0 then
+			res=POS_FACEUP_UNSUSPENDED
+		--workaround to check if a card in LOCATION_SZONE is suspended
+		elseif c:GetFlagEffect(FLAG_CODE_SUSPENDED)>0 then
+			res=POS_FACEUP_SUSPENDED
+		end
+	else
+		if not c:IsLocation(LOCATION_SZONE) then
+			res=card_get_position(c)
+		end
+	end
+	return res
+end
+--check if a card is in a given position
+--Note: See Card.GetPosition
+local card_is_position=Card.IsPosition
+function Card.IsPosition(c,pos)
+	local res=false
+	if c:IsFaceup() and c:IsLocation(LOCATION_SZONE) and c:IsSequenceBelow(4) then
+		--workaround to check if a card in LOCATION_SZONE is unsuspended
+		if c:GetFlagEffect(FLAG_CODE_SUSPENDED)==0 and pos==POS_FACEUP_UNSUSPENDED then
+			res=true
+		--workaround to check if a card in LOCATION_SZONE is suspended
+		elseif c:GetFlagEffect(FLAG_CODE_SUSPENDED)>0 and pos==POS_FACEUP_SUSPENDED then
+			res=true
+		end
+	else
+		if not c:IsLocation(LOCATION_SZONE) then
+			res=card_is_position(c,pos)
+		end
+	end
+	return res
+end
 --check if a digimon can be played
 --Note: Overwritten to include Duel.CheckBattleArea
 local card_is_can_be_special_summoned=Card.IsCanBeSpecialSummoned
 function Card.IsCanBeSpecialSummoned(c,e,playtype,playplayer,...)
+	playtype=playtype or 0
+	if bit.band(playtype,SUMMON_TYPE_DIGIVOLVE)~=0 then
+		return Duel.GetLocationCount(playplayer,LOCATION_MZONE)>=-1
+	end
 	if not Duel.CheckBattleArea(playplayer) then return false end
 	return card_is_can_be_special_summoned(c,e,playtype,playplayer,...)
 end
@@ -101,11 +145,17 @@ function Card.IsSequenceAbove(c,seq)
 end
 --check if a card can be unsuspended
 function Card.IsAbleToUnsuspend(c)
+	if c:IsHasEffect(EFFECT_CANNOT_CHANGE_POS_E) then return false end
 	return c:IsPosition(POS_FACEUP_SUSPENDED)
 end
 --check if a card can be suspended
 function Card.IsAbleToSuspend(c)
+	if c:IsHasEffect(EFFECT_CANNOT_CHANGE_POS_E) then return false end
 	return c:IsPosition(POS_FACEUP_UNSUSPENDED)
+end
+--check if a card can be unsuspended during the unsuspend phase
+function Card.IsAbleToUnsuspendRule(c)
+	return c:IsPosition(POS_FACEUP_SUSPENDED)
 end
 --get a digimon's level
 function Card.GetDigiLevel(c)
@@ -160,7 +210,7 @@ end
 function Card.GetDigivolveColor(c)
 	return c.digivolve_color or COLOR_NONE
 end
---check if the color required to digivolve into this digimon is a particular color
+--check if the color required to digivolve into this digimon is a given color
 function Card.IsDigivolveColor(c,color)
 	return bit.band(c:GetDigivolveColor(),color)~=0
 end
@@ -196,7 +246,7 @@ end
 function Card.IsCanAttackTurn(c)
 	return false
 end
---get a card's check count
+--get a digimon's check count
 function Card.GetCheckCount(c)
 	local res=1
 	local t1={c:IsHasEffect(EFFECT_UPDATE_CHECK)}
@@ -207,11 +257,19 @@ function Card.GetCheckCount(c)
 			res=res+te1:GetValue()
 		end
 	end
+	local t2={c:IsHasEffect(EFFECT_CHANGE_CHECK)}
+	for _,te2 in pairs(t2) do
+		if type(te2:GetValue())=="function" then
+			res=te2:GetValue()(te2,c)
+		else
+			res=te2:GetValue()
+		end
+	end
 	return res
 end
 --check if a digimon can be played
-function Card.IsCanBePlayed(c,e,playplayer)
-	return c:IsCanBeSpecialSummoned(e,0,playplayer,false,false)
+function Card.IsCanBePlayed(c,e,playplayer,playtype)
+	return c:IsCanBeSpecialSummoned(e,playtype,playplayer,false,false)
 end
 --check if a digimon can attack an unsuspended digimon
 function Card.IsCanAttackUnsuspended(c)
@@ -222,11 +280,13 @@ function Card.IsCanBlock(c)
 	return not c:IsHasEffect(EFFECT_CANNOT_BLOCK)
 end
 --Renamed Card functions
+--get a card's original play cost
+Card.GetOriginalPlayCost=Card.GetOriginalLevel
 --get a card's color
 Card.GetColor=Card.GetAttribute
 --get a card's original color
 Card.GetOriginalColor=Card.GetOriginalAttribute
---check if a card has a particular color
+--check if a card has a given color
 Card.IsColor=Card.IsAttribute
 --get a card's current digimon power
 Card.GetPower=Card.GetAttack
@@ -236,15 +296,13 @@ Card.IsPower=Card.IsAttack
 Card.IsPowerBelow=Card.IsAttackBelow
 --check if a card's digimon power is greater than or equal to a given value
 Card.IsPowerAbove=Card.IsAttackAbove
---get a card's original play cost
-Card.GetOriginalPlayCost=Card.GetOriginalLevel
+--get a digimon's play type (SUMMON_TYPE)
+Card.GetPlayType=Card.GetSummonType
+--check what a digimon's play type (SUMMON_TYPE) is
+Card.IsPlayType=Card.IsSummonType
 --get a digimon's digivolution cards
 Card.GetDigivolutionGroup=Card.GetOverlayGroup
 --get the number of digivolution cards a digimon has
 Card.GetDigivolutionCount=Card.GetOverlayCount
 --check if a card can be trashed
 Card.IsAbleToTrash=Card.IsAbleToGrave
---get a digimon's play type (SUMMON_TYPE)
-Card.GetPlayType=Card.GetSummonType
---check what a digimon's play type (SUMMON_TYPE) is
-Card.IsPlayType=Card.IsSummonType

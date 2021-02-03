@@ -21,6 +21,7 @@ function scard.op1(e,tp,eg,ep,ev,re,r,rp)
 end
 --gain digimon power
 function scard.con1(e)
+	local tp=e:GetHandlerPlayer()
 	local tc=e:GetHandler():GetBattleTarget()
-	return Duel.GetTurnPlayer()==e:GetHandlerPlayer() and tc and tc:IsDigivolutionCount(0)
+	return Duel.GetTurnPlayer()==tp and tc and tc:IsDigivolutionCount(0) and tc:IsControler(1-tp)
 end

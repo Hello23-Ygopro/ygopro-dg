@@ -141,27 +141,28 @@ function Auxiliary.AddSetcode(c,setname)
 	end
 end
 --register a card's level (lv.)
+--required for Card.IsDigiLevel
 function Auxiliary.AddLevel(c,val)
 	local mt=getmetatable(c)
 	mt.level=val
 end
---register a card's type (race)
---required for (reserved) Card.IsDigiRace
-function Auxiliary.AddRace(c,...)
-	if c.race==nil then
+--register a card's form
+--reserved for Card.IsForm
+function Auxiliary.AddForm(c,...)
+	if c.form==nil then
 		local mt=getmetatable(c)
-		mt.race={}
-		for _,racename in ipairs{...} do
-			table.insert(mt.race,racename)
+		mt.form={}
+		for _,formname in ipairs{...} do
+			table.insert(mt.form,formname)
 		end
 	else
-		for _,racename in ipairs{...} do
-			table.insert(c.race,racename)
+		for _,formname in ipairs{...} do
+			table.insert(c.form,formname)
 		end
 	end
 end
 --register a card's attribute
---required for (reserved) Card.IsDigiAttribute
+--reserved for Card.IsDigiAttribute
 function Auxiliary.AddAttribute(c,...)
 	if c.attribute==nil then
 		local mt=getmetatable(c)
@@ -175,18 +176,18 @@ function Auxiliary.AddAttribute(c,...)
 		end
 	end
 end
---register a card's form
---required for (reserved) Card.IsForm
-function Auxiliary.AddForm(c,...)
-	if c.form==nil then
+--register a card's type (race)
+--reserved for Card.IsDigiRace
+function Auxiliary.AddRace(c,...)
+	if c.race==nil then
 		local mt=getmetatable(c)
-		mt.form={}
-		for _,formname in ipairs{...} do
-			table.insert(mt.form,formname)
+		mt.race={}
+		for _,racename in ipairs{...} do
+			table.insert(mt.race,racename)
 		end
 	else
-		for _,formname in ipairs{...} do
-			table.insert(c.form,formname)
+		for _,racename in ipairs{...} do
+			table.insert(c.race,racename)
 		end
 	end
 end
@@ -264,7 +265,6 @@ function Auxiliary.EnableDigimonAttribute(c)
 	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_IGNORE_IMMUNE)
 	e1:SetRange(LOCATION_HAND)
 	e1:SetCountLimit(1)
-	e1:SetHintTiming(TIMING_MAIN_END+TIMING_BATTLE_END,0)
 	e1:SetCondition(Auxiliary.PlayCondition)
 	e1:SetCost(Auxiliary.PlayCost)
 	e1:SetTarget(Auxiliary.PlayDigimonTarget)
@@ -309,7 +309,6 @@ function Auxiliary.AddDigivolutionProcedure(c)
 	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_IGNORE_IMMUNE)
 	e1:SetRange(LOCATION_HAND)
 	e1:SetCountLimit(1)
-	e1:SetHintTiming(TIMING_MAIN_END+TIMING_BATTLE_END,0)
 	e1:SetCondition(Auxiliary.PlayCondition)
 	e1:SetCost(Auxiliary.DigivolveCost)
 	e1:SetTarget(Auxiliary.DigivolveTarget)
@@ -345,7 +344,7 @@ function Auxiliary.DigivolveTarget(e,tp,eg,ep,ev,re,r,rp,chk)
 	local color=c:GetDigivolveColor()
 	local lv=c:GetDigivolveLevel()
 	if chk==0 then return Duel.IsExistingMatchingCard(Auxiliary.DigivolveFilter,tp,LOCATION_MZONE,0,1,nil,color,lv)
-		and Duel.GetLocationCount(tp,LOCATION_MZONE)>=-1 and c:IsCanBePlayed(e,tp) end
+		and Duel.GetLocationCount(tp,LOCATION_MZONE)>=-1 and c:IsCanBePlayed(e,tp,SUMMON_TYPE_DIGIVOLVE) end
 end
 function Auxiliary.DigivolveOperation(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
@@ -366,7 +365,6 @@ function Auxiliary.EnableTamerAttribute(c)
 	e1:SetType(EFFECT_TYPE_QUICK_O)
 	e1:SetCode(EVENT_FREE_CHAIN)
 	e1:SetRange(LOCATION_HAND)
-	e1:SetHintTiming(TIMING_MAIN_END+TIMING_BATTLE_END,0)
 	e1:SetCondition(Auxiliary.PlayCondition)
 	e1:SetCost(Auxiliary.PlayCost)
 	e1:SetOperation(Auxiliary.TamerOperation)
@@ -391,9 +389,7 @@ function Auxiliary.AddInheritedEffect(c,op_func)
 	return e1
 end
 function Auxiliary.InheritedEffectCondition(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	local rc=c:GetReasonCard()
-	return r==REASON_DIGIVOLVE and rc:IsSequenceAbove(1) and rc:IsSequenceBelow(4)
+	return r==REASON_DIGIVOLVE
 end
 --"[Security]" effects
 --e.g. "Tai Kamiya" (ST1-12)
@@ -409,6 +405,7 @@ end
 --"[Main]" effects
 --e.g. "Shadow Wing" (ST1-13)
 function Auxiliary.AddMainEffect(c,op_func,targ_func)
+	targ_func=targ_func or Auxiliary.HintTarget
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_QUICK_O)
 	e1:SetCode(EVENT_FREE_CHAIN)
@@ -435,7 +432,8 @@ function Auxiliary.OptionFilter(c,typ,color)
 	return c:IsFaceup() and c:IsType(typ) and c:IsColor(color)
 end
 function Auxiliary.OptionCondition(e,tp,eg,ep,ev,re,r,rp)
-	local color=e:GetHandler():GetColor()
+	local c=e:GetHandler()
+	local color=c:GetColor()
 	return Duel.IsExistingMatchingCard(Auxiliary.BattleAreaFilter(Auxiliary.OptionFilter),tp,LOCATION_MZONE,0,1,nil,TYPE_DIGIMON,color)
 		or Duel.IsExistingMatchingCard(Auxiliary.OptionFilter,tp,LOCATION_ONFIELD,0,1,nil,TYPE_TAMER,color)
 end
@@ -450,7 +448,7 @@ function Auxiliary.EnableBlocker(c)
 	e1:SetRange(LOCATION_MZONE)
 	e1:SetCondition(Auxiliary.BlockerCondition)
 	e1:SetCost(Auxiliary.BlockerCost)
-	e1:SetTarget(Auxiliary.BlockerTarget)
+	e1:SetTarget(Auxiliary.HintTarget)
 	e1:SetOperation(Auxiliary.BlockerOperation)
 	c:RegisterEffect(e1)
 end
@@ -463,10 +461,6 @@ function Auxiliary.BlockerCost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return c:IsAbleToSuspend()
 		and not Duel.GetAttacker():IsStatus(STATUS_ATTACK_CANCELED) and Duel.GetCurrentChain()==0 end
 	Duel.ChangePosition(c,POS_FACEUP_SUSPENDED)
-end
-function Auxiliary.BlockerTarget(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return true end
-	Duel.Hint(HINT_OPSELECTED,1-tp,e:GetDescription())
 end
 function Auxiliary.BlockerOperation(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
@@ -488,6 +482,7 @@ function Auxiliary.AddSingleTriggerEffect(c,desc_id,code,op_func,prop)
 	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
 	e1:SetCode(code)
 	e1:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL+prop)
+	e1:SetTarget(Auxiliary.HintTarget)
 	e1:SetOperation(op_func)
 	c:RegisterEffect(e1)
 	return e1
@@ -506,6 +501,7 @@ function Auxiliary.AddTriggerEffect(c,desc_id,code,op_func,prop)
 	elseif c:IsType(TYPE_TAMER) then
 		e1:SetRange(LOCATION_SZONE)
 	end
+	e1:SetTarget(Auxiliary.HintTarget)
 	e1:SetOperation(op_func)
 	c:RegisterEffect(e1)
 	return e1
@@ -585,7 +581,6 @@ function Auxiliary.BattlePhaseCondition()
 	return Duel.GetCurrentPhase()>=PHASE_BATTLE_START and Duel.GetCurrentPhase()<=PHASE_BATTLE
 end
 --condition for "[Main]"
---e.g. "Shadow Wing" (ST1-13)
 function Auxiliary.MainCondition(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetCurrentPhase()==PHASE_MAIN1 or Auxiliary.BattlePhaseCondition()
 end
@@ -615,6 +610,11 @@ function Auxiliary.PlayCost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.CheckCost(tp,cost) end
 	Duel.PayCost(tp,cost)
 end
+--target for Duel.Hint(HINT_OPSELECTED,1-tp,e:GetDescription())
+function Auxiliary.HintTarget(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return true end
+	Duel.Hint(HINT_OPSELECTED,1-tp,e:GetDescription())
+end
 --target for effects that target cards
 --e.g. "Sorrow Blue" (ST2-14)
 function Auxiliary.TargetCardFunction(p,f,s,o,min,max,desc,ex,...)
@@ -639,6 +639,7 @@ function Auxiliary.TargetCardFunction(p,f,s,o,min,max,desc,ex,...)
 					if e:IsHasType(EFFECT_TYPE_TRIGGER_F) or e:IsHasType(EFFECT_TYPE_QUICK_F) then return true end
 					return Duel.IsExistingTarget(f,tp,s,o,1,exg,e,tp,eg,ep,ev,re,r,rp,table.unpack(ext_params))
 				end
+				Duel.Hint(HINT_OPSELECTED,1-tp,e:GetDescription())
 				Duel.Hint(HINT_SELECTMSG,player,desc)
 				Duel.SelectTarget(player,f,tp,s,o,min,max,exg,e,tp,eg,ep,ev,re,r,rp,table.unpack(ext_params))
 			end
@@ -667,7 +668,7 @@ function Auxiliary.UpdatePowerOperation(p,f,s,o,min,max,val,reset_flag,reset_cou
 				local g=Duel.GetMatchingGroup(aux.AND(Auxiliary.BattleAreaFilter,f),tp,s,o,ex,table.unpack(ext_params))
 				if g:GetCount()==0 then return end
 				if min and max then
-					Duel.Hint(HINT_SELECTMSG,tp,desc)
+					Duel.Hint(HINT_SELECTMSG,player,desc)
 					local sg=g:Select(player,min,max,ex,table.unpack(ext_params))
 					Duel.HintSelection(sg)
 					--gain/lose digimon power
@@ -698,22 +699,6 @@ function Auxiliary.DeleteOperation(p,f,s,o,min,max,ex,...)
 				else
 					Duel.Delete(g,REASON_EFFECT)
 				end
-			end
-end
---operation for effects that activate the [Main] effect of the card itself
---e.g. "Giga Destroyer" (ST1-15)
-function Auxiliary.SelfActivateMainOperation(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	local m=_G["c"..c:GetCode()]
-	local te=m.main_effect
-	local op=te:GetOperation()
-	if op then op(e,tp,eg,ep,ev,re,r,rp) end
-end
---operation for effects that change the position of the card itself
---e.g. "MetalGarurumon" (ST2-11)
-function Auxiliary.SelfChangePositionOperation(pos)
-	return	function(e,tp,eg,ep,ev,re,r,rp)
-				Duel.ChangePosition(e:GetHandler(),pos)
 			end
 end
 --operation for effects that send cards to the hand
@@ -748,7 +733,7 @@ function Auxiliary.SendtoHandOperation(p,f,s,o,min,max,conf,ex,...)
 				--show cards taken from the deck only if the effect says to do so
 				if conf and og1:GetCount()>0 then Duel.ConfirmCards(1-tp,og1) end
 				if conf and og2:GetCount()>0 then Duel.ConfirmCards(tp,og2) end
-				--show cards taken from the trash, security stack or digivolution by default
+				--show cards taken from the trash, security stack, and digivolution by default
 				if og3:GetCount()>0 then Duel.ConfirmCards(1-tp,og3) end
 				if og4:GetCount()>0 then Duel.ConfirmCards(tp,og4) end
 			end
@@ -762,6 +747,22 @@ function Auxiliary.TargetPlayDigimonOperation(pos)
 				if not g then return end
 				local sg=g:Filter(Card.IsRelateToEffect,nil,e)
 				Duel.PlayDigimon(sg,tp,pos)
+			end
+end
+--operation for effects that activate the [Main] effect of the card itself
+--e.g. "Giga Destroyer" (ST1-15)
+function Auxiliary.SelfActivateMainOperation(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local m=_G["c"..c:GetCode()]
+	local te=m.main_effect
+	local op=te:GetOperation()
+	if op then op(e,tp,eg,ep,ev,re,r,rp) end
+end
+--operation for effects that change the position of the card itself
+--e.g. "MetalGarurumon" (ST2-11)
+function Auxiliary.SelfChangePositionOperation(pos)
+	return	function(e,tp,eg,ep,ev,re,r,rp)
+				Duel.ChangePosition(e:GetHandler(),pos)
 			end
 end
 --filter for a card in the battle area
@@ -797,10 +798,6 @@ loadutility("rule.lua")
 --[[
 	References
 
-	Deck Creation
-	Q. My deck has 45 cards, and my Digi-Egg deck has 5, adding up to a total of 50. Is my deck legal?
-	A. No. Your deck must contain 50 cards on its own, with or without cards from your Digi-Egg deck.
-
 	Draw Phase
 	Q. Is there a maximum hand size?
 	A. No, you can have as many cards in your hand as you like.
@@ -832,7 +829,7 @@ loadutility("rule.lua")
 	Keyword Effect <Blocker>
 	Q. I have two Digimon with <Blocker>. Can I use both of them to block a single attack?
 	A. No, you can't. Blocker can't be activated by two Digimon simultaneously.
-	Q. Which comes first: resolving "when attacking" effects, ordeclaring the use of <Blocker>?
+	Q. Which comes first: resolving "when attacking" effects, or declaring the use of <Blocker>?
 	A. Resolving "when attacking" effects comes first. You can decide whether or not to use <Blocker> after seeing how the
 	situation plays out.
 
