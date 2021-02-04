@@ -73,6 +73,26 @@ function Duel.IsPlayerCanDraw(player,count)
 	if deck_count>0 and count>deck_count then count=deck_count end
 	return duel_is_player_can_draw(player,count)
 end
+--let two cards participate in a battle
+--Note: Overwritten to allow a card to participate in a battle if it is not on the field
+local duel_calculate_damage=Duel.CalculateDamage
+function Duel.CalculateDamage(c1,c2)
+	--c1: attacker
+	--c2: attack target
+	local pwr1=c1:GetPower()
+	local pwr2=c2:GetPower()
+	if not c1:IsOnField() or not c2:IsOnField() then
+		if pwr1>pwr2 then
+			Duel.Delete(c2,REASON_BATTLE+REASON_RULE)
+		elseif pwr1<pwr2 then
+			Duel.Delete(c1,REASON_BATTLE+REASON_RULE)
+		else
+			Duel.Delete(c1,REASON_BATTLE+REASON_RULE)
+			Duel.Delete(c2,REASON_BATTLE+REASON_RULE)
+		end
+	end
+	return duel_calculate_damage(c1,c2)
+end
 --select a card
 --Note: Overwritten to notify a player if there are no cards to select
 local duel_select_matching_card=Duel.SelectMatchingCard

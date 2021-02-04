@@ -291,7 +291,7 @@ function Rule.CheckOperation(e,tp,eg,ep,ev,re,r,rp)
 	for i=1,ct do
 		local g=Duel.GetFieldGroup(cp,0,LOCATION_SECURITY)
 		local c=g:GetFirst()
-		if not c then break end
+		if not a or not a:IsOnField() or a:IsStatus(STATUS_BATTLE_DESTROYED) or not c then break end
 		--ignore yugioh rules
 		--no battle damage
 		local e0=Effect.CreateEffect(c)
@@ -302,8 +302,10 @@ function Rule.CheckOperation(e,tp,eg,ep,ev,re,r,rp)
 		e0:SetValue(0)
 		e0:SetReset(RESET_PHASE+PHASE_DAMAGE)
 		Duel.RegisterEffect(e0,tp)
+		--workaround to flip over the top security card
+		Duel.SendtoHand(c,PLAYER_OWNER,REASON_RULE)
+		Duel.ConfirmCards(1-c:GetControler(),c)
 		if c:IsType(TYPE_DIGIMON) then
-			Duel.MoveToField(c,1-cp,1-cp,LOCATION_MZONE,POS_FACEUP_SUSPENDED,true,ZONE_MZONE_LEFT)
 			--become security digimon
 			local e1=Effect.CreateEffect(c)
 			e1:SetType(EFFECT_TYPE_SINGLE)
@@ -322,14 +324,12 @@ function Rule.CheckOperation(e,tp,eg,ep,ev,re,r,rp)
 			e2:SetLabelObject(c)
 			e2:SetOperation(function(e,tp,eg,ep,ev,re,r,rp)
 				local c=e:GetLabelObject()
-				if c:IsOnField() then
+				if not c:IsLocation(LOCATION_TRASH) then
 					Duel.Trash(c,REASON_RULE)
 				end
 			end)
 			e2:SetReset(RESET_PHASE+PHASE_DAMAGE)
 			Duel.RegisterEffect(e2,tp)
-		else
-			Duel.MoveToField(c,1-cp,1-cp,LOCATION_MZONE,POS_FACEUP_UNSUSPENDED,true,ZONE_MZONE_LEFT)
 		end
 		--raise event for "[Security]" effects
 		Duel.RaiseSingleEvent(c,EVENT_CUSTOM+EVENT_CHECK_SECURITY,e,0,0,0,0)
