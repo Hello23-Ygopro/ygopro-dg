@@ -839,4 +839,10 @@ loadutility("rule.lua")
 	cause you to lose the game.
 	Q. There's 1 card left in my deck. What happens if I activate <Draw +2>?
 	A. Draw as many cards as you can. If you run out of cards to draw, the effect ends.
+	
+	Effects that make you Gain or Lose Memory
+	There are certain effects that can cause you to gain or lose memory. The memory gained or lost is gained or lost by the
+	player who uses the card.
+	For example, Hammer Spark has a security effect that says "Gain 2 memory" If that card is checked by your opponent's
+	attack, you gain 2 memory. From your opponent's point of view, they lose 2 memory.
 ]]

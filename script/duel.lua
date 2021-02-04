@@ -167,41 +167,51 @@ function Duel.GetMaxMemory(player)
 end
 --increase a player's memory
 function Duel.AddMemory(player,count)
-	local memory=Duel.GetMemory(player)
-	local max_memory=Duel.GetMaxMemory(player)
-	if memory+count>max_memory then count=max_memory-memory end
-	if Duel.GetMemoryGauge(player):AddCounter(COUNTER_MEMORY,count) then
-		--end the turn
-		if Duel.IsMemoryAbove(1-player,1) and Duel.GetFlagEffect(player,FLAG_CODE_OVERSPENT)==0 then
-			Duel.EndTurn()
-			Duel.RegisterFlagEffect(player,FLAG_CODE_OVERSPENT,0,0,1)
-		end
+	local turnp=Duel.GetTurnPlayer()
+	if turnp~=player then
+		local add=Duel.GetMemory(turnp)-count
+		--if the non-turn player gains memory, the turn player loses that memory instead
+		Duel.GetMemoryGauge(turnp):RemoveCounter(turnp,COUNTER_MEMORY,count,REASON_RULE)
+		--carry over the negative amount
+		if add<0 then Duel.GetMemoryGauge(player):AddCounter(COUNTER_MEMORY,-add) end
+	else
+		Duel.GetMemoryGauge(player):AddCounter(COUNTER_MEMORY,count)
+	end
+	--end the turn
+	if Duel.IsMemoryAbove(1-turnp,1) and Duel.GetFlagEffect(turnp,FLAG_CODE_OVERSPENT)==0 then
+		Duel.EndTurn()
+		Duel.RegisterFlagEffect(turnp,FLAG_CODE_OVERSPENT,0,0,1)
 	end
 end
 --decrease a player's memory
 function Duel.RemoveMemory(player,count)
+	local turnp=Duel.GetTurnPlayer()
 	local memory=Duel.GetMemory(player)
 	local add=memory-count
-	Duel.GetMemoryGauge(player):RemoveCounter(player,COUNTER_MEMORY,count,REASON_RULE)
-	--carry over remaining amount
-	if add<0 then
-		Duel.GetMemoryGauge(1-player):AddCounter(COUNTER_MEMORY,-add,REASON_RULE)
+	if turnp~=player then
+		--if the non-turn player loses memory, the turn player gains that memory instead
+		Duel.GetMemoryGauge(turnp):AddCounter(COUNTER_MEMORY,count)
+	else
+		Duel.GetMemoryGauge(player):RemoveCounter(player,COUNTER_MEMORY,count,REASON_RULE)
 	end
+	--carry over the negative amount
+	if add<0 then Duel.GetMemoryGauge(1-player):AddCounter(COUNTER_MEMORY,-add) end
 	--end the turn
-	if Duel.IsMemoryAbove(1-player,1) and Duel.GetFlagEffect(player,FLAG_CODE_OVERSPENT)==0 then
+	if Duel.IsMemoryAbove(1-turnp,1) and Duel.GetFlagEffect(turnp,FLAG_CODE_OVERSPENT)==0 then
 		Duel.EndTurn()
-		Duel.RegisterFlagEffect(player,FLAG_CODE_OVERSPENT,0,0,1)
+		Duel.RegisterFlagEffect(turnp,FLAG_CODE_OVERSPENT,0,0,1)
 	end
 end
 --set a player's memory
 function Duel.SetMemory(player,count)
+	local turnp=Duel.GetTurnPlayer()
 	local memory=Duel.GetMemory(player)
 	Duel.GetMemoryGauge(player):RemoveCounter(player,COUNTER_MEMORY,memory,REASON_RULE)
-	Duel.AddMemory(player,count)
+	Duel.GetMemoryGauge(player):AddCounter(COUNTER_MEMORY,count)
 	--end the turn
-	if Duel.IsMemoryAbove(1-player,1) and Duel.GetFlagEffect(player,FLAG_CODE_OVERSPENT)==0 then
+	if Duel.IsMemoryAbove(1-turnp,1) and Duel.GetFlagEffect(turnp,FLAG_CODE_OVERSPENT)==0 then
 		Duel.EndTurn()
-		Duel.RegisterFlagEffect(player,FLAG_CODE_OVERSPENT,0,0,1)
+		Duel.RegisterFlagEffect(turnp,FLAG_CODE_OVERSPENT,0,0,1)
 	end
 end
 --send a card from the top of a player's deck to the security stack
@@ -239,17 +249,16 @@ function Duel.CheckCost(player,cost)
 end
 --pay a cost
 function Duel.PayCost(player,cost)
+	local turnp=Duel.GetTurnPlayer()
 	local memory=Duel.GetMemory(player)
 	local add=memory-cost
 	Duel.SetMemory(player,add)
-	--carry over remaining amount
-	if add<0 then
-		Duel.SetMemory(1-player,-add)
-	end
+	--carry over the negative amount
+	if add<0 then Duel.SetMemory(1-player,-add) end
 	--end the turn
-	if Duel.IsMemoryAbove(1-player,1) and Duel.GetFlagEffect(player,FLAG_CODE_OVERSPENT)==0 then
+	if Duel.IsMemoryAbove(1-turnp,1) and Duel.GetFlagEffect(turnp,FLAG_CODE_OVERSPENT)==0 then
 		Duel.EndTurn()
-		Duel.RegisterFlagEffect(player,FLAG_CODE_OVERSPENT,0,0,1)
+		Duel.RegisterFlagEffect(turnp,FLAG_CODE_OVERSPENT,0,0,1)
 	end
 end
 --play a digimon

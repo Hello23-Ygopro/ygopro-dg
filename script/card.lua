@@ -1,13 +1,13 @@
 --Temporary Card functions
---check if a card's play cost is equal to a given value
---Note: See Card.GetPlayCost
-local card_is_level=Card.IsLevel
-function Card.IsLevel(c,lv)
-	if card_is_level then
-		return card_is_level(c,lv)
-	else
-		return c:GetLevel()==lv
+--check if a card has a given setname
+--Note: Overwritten to check for an infinite number of setnames
+local card_is_set_card=Card.IsSetCard
+function Card.IsSetCard(c,...)
+	local setname_list={...}
+	for _,setname in ipairs(setname_list) do
+		if card_is_set_card(c,setname,...) then return true end
 	end
+	return false
 end
 --check if a card's digimon power is equal to a given value
 local card_is_attack=Card.IsAttack
@@ -17,16 +17,6 @@ function Card.IsAttack(c,atk)
 	else
 		return c:GetAttack()==atk
 	end
-end
---check if a card has a given property
---Note: Overwritten to check for an infinite number of properties
-local card_is_set_card=Card.IsSetCard
-function Card.IsSetCard(c,...)
-	local setname_list={...}
-	for _,setname in ipairs(setname_list) do
-		if card_is_set_card(c,setname,...) then return true end
-	end
-	return false
 end
 --Overwritten Card functions
 --get a card's current play cost
@@ -54,6 +44,11 @@ function Card.GetLevel(c)
 end
 Card.GetPlayCost=Card.GetLevel
 --check if a card's play cost is equal to a given value
+--Note: See Card.GetPlayCost
+local card_is_level=Card.IsLevel
+function Card.IsLevel(c,lv)
+	return c:GetLevel()==lv
+end
 Card.IsPlayCost=Card.IsLevel
 --check if a card's play cost is less than or equal to a given value
 --Note: See Card.GetPlayCost
@@ -75,10 +70,10 @@ local card_get_position=Card.GetPosition
 function Card.GetPosition(c)
 	local res=0
 	if c:IsFaceup() and c:IsLocation(LOCATION_SZONE) and c:IsSequenceBelow(4) then
-		--workaround to check if a card in LOCATION_SZONE is unsuspended
+		--workaround to check if a card is unsuspended in LOCATION_SZONE
 		if c:GetFlagEffect(FLAG_CODE_SUSPENDED)==0 then
 			res=POS_FACEUP_UNSUSPENDED
-		--workaround to check if a card in LOCATION_SZONE is suspended
+		--workaround to check if a card is suspended in LOCATION_SZONE
 		elseif c:GetFlagEffect(FLAG_CODE_SUSPENDED)>0 then
 			res=POS_FACEUP_SUSPENDED
 		end
@@ -89,16 +84,16 @@ function Card.GetPosition(c)
 	end
 	return res
 end
---check if a card is in a given position
+--check if a card is a given position
 --Note: See Card.GetPosition
 local card_is_position=Card.IsPosition
 function Card.IsPosition(c,pos)
 	local res=false
 	if c:IsFaceup() and c:IsLocation(LOCATION_SZONE) and c:IsSequenceBelow(4) then
-		--workaround to check if a card in LOCATION_SZONE is unsuspended
+		--workaround to check if a card is unsuspended in LOCATION_SZONE
 		if c:GetFlagEffect(FLAG_CODE_SUSPENDED)==0 and pos==POS_FACEUP_UNSUSPENDED then
 			res=true
-		--workaround to check if a card in LOCATION_SZONE is suspended
+		--workaround to check if a card is suspended in LOCATION_SZONE
 		elseif c:GetFlagEffect(FLAG_CODE_SUSPENDED)>0 and pos==POS_FACEUP_SUSPENDED then
 			res=true
 		end
@@ -121,14 +116,31 @@ function Card.IsCanBeSpecialSummoned(c,e,playtype,playplayer,...)
 	return card_is_can_be_special_summoned(c,e,playtype,playplayer,...)
 end
 --add a counter to a card
---Note: Overwritten to not add 0 or negative counters
+--Note: Overwritten to not add 0, negative counters, or counters exceeding a set amount
 local card_add_counter=Card.AddCounter
-function Card.AddCounter(c,countertype,count,singly)
+function Card.AddCounter(c,countertype,count,...)
 	if count<=0 then
 		return true
 	else
-		return card_add_counter(c,countertype,count,singly)
+		if c:IsCode(CARD_MEMORY_GAUGE) and countertype==COUNTER_MEMORY then
+			local player=c:GetControler()
+			local memory=Duel.GetMemory(player)
+			local max_memory=Duel.GetMaxMemory(player)
+			--do not exceed the max memory amount
+			if memory+count>max_memory then count=max_memory-memory end
+		end
 	end
+	return card_add_counter(c,countertype,count,...)
+end
+--remove a counter from a card
+--Note: Overwritten to check if a card has less counters than the number of counters the player will remove
+local card_remove_counter=Card.RemoveCounter
+function Card.RemoveCounter(c,player,countertype,count,reason)
+	local counter_count=c:GetCounter(countertype)
+	if counter_count>0 and count>counter_count then count=counter_count end
+	local res=nil
+	if count>0 then res=card_remove_counter(c,player,countertype,count,reason) end
+	return res
 end
 --New Card functions
 --check if the serial number of a card's current position is equal to a given value
