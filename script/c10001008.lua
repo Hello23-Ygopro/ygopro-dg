@@ -1,4 +1,4 @@
---Garudamon (ST1-08)
+--ST1-08 Garudamon
 local scard,sid=aux.GetID()
 function scard.initial_effect(c)
 	aux.AddLevel(c,5)

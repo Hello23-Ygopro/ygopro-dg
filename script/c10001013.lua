@@ -1,4 +1,4 @@
---Shadow Wing (ST1-13)
+--ST1-13 Shadow Wing
 local scard,sid=aux.GetID()
 function scard.initial_effect(c)
 	--gain effect (gain digimon power)

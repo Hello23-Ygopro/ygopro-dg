@@ -1,4 +1,4 @@
---Starlight Explosion (ST1-14)
+--ST1-14 Starlight Explosion
 local scard,sid=aux.GetID()
 function scard.initial_effect(c)
 	--gain effect

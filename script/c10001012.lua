@@ -1,4 +1,4 @@
---Tai Kamiya (ST1-12)
+--ST1-12 Tai Kamiya
 local scard,sid=aux.GetID()
 function scard.initial_effect(c)
 	--tamer

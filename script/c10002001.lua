@@ -1,4 +1,4 @@
---Tsunomon (ST2-01)
+--ST2-01 Tsunomon
 local scard,sid=aux.GetID()
 function scard.initial_effect(c)
 	aux.AddLevel(c,2)

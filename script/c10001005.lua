@@ -1,4 +1,4 @@
---Birdramon (ST1-05)
+--ST1-05 Birdramon
 local scard,sid=aux.GetID()
 function scard.initial_effect(c)
 	aux.AddLevel(c,4)

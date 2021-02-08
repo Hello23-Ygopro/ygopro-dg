@@ -1,4 +1,4 @@
---Sorrow Blue (ST2-14)
+--ST2-14 Sorrow Blue
 local scard,sid=aux.GetID()
 function scard.initial_effect(c)
 	--gain effect

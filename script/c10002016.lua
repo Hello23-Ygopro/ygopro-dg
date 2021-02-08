@@ -1,4 +1,4 @@
---Cocytus Breath (ST2-16)
+--ST2-16 Cocytus Breath
 local scard,sid=aux.GetID()
 function scard.initial_effect(c)
 	--return

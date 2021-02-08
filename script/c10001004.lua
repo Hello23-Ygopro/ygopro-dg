@@ -1,4 +1,4 @@
---Dracomon (ST1-04)
+--ST1-04 Dracomon
 local scard,sid=aux.GetID()
 function scard.initial_effect(c)
 	aux.AddLevel(c,3)

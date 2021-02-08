@@ -1,4 +1,4 @@
---Phoenixmon (ST1-10)
+--ST1-10 Phoenixmon
 local scard,sid=aux.GetID()
 function scard.initial_effect(c)
 	aux.AddLevel(c,6)

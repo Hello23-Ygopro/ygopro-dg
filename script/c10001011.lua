@@ -1,4 +1,4 @@
---WarGreymon (ST1-11)
+--ST1-11 WarGreymon
 local scard,sid=aux.GetID()
 function scard.initial_effect(c)
 	aux.AddLevel(c,6)

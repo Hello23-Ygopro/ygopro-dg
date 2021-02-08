@@ -1,4 +1,4 @@
---Biyomon (ST1-02)
+--ST1-02 Biyomon
 local scard,sid=aux.GetID()
 function scard.initial_effect(c)
 	aux.AddLevel(c,3)

@@ -1,4 +1,4 @@
---MetalGreymon (ST1-09)
+--ST1-09 MetalGreymon
 local scard,sid=aux.GetID()
 function scard.initial_effect(c)
 	aux.AddLevel(c,5)

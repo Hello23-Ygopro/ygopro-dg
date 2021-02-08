@@ -1,4 +1,4 @@
---WereGarurumon (ST2-08)
+--ST2-08 WereGarurumon
 local scard,sid=aux.GetID()
 function scard.initial_effect(c)
 	aux.AddLevel(c,5)

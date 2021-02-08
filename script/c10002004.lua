@@ -1,4 +1,4 @@
---Bearmon (ST2-04)
+--ST2-04 Bearmon
 local scard,sid=aux.GetID()
 function scard.initial_effect(c)
 	aux.AddLevel(c,3)

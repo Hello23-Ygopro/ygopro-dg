@@ -101,9 +101,9 @@ If you do not build your deck according to the following rules, you will lose th
 - `0x2	WATER` = Blue
 - `0x4	FIRE` = Yellow
 - `0x8	WIND` = Green
-- `0x10	LIGHT` = Black
-- `0x20 DARK` = Purple
-- `0x40 DIVINE` = White
+- `0x10	LIGHT` = White
+- `0x20 DARK` = Black
+- `0x40 DIVINE` = Purple
 </details>
 <details>
 <summary>Monster Type</summary>

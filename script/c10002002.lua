@@ -1,4 +1,4 @@
---Gomamon (ST2-02)
+--ST2-02 Gomamon
 local scard,sid=aux.GetID()
 function scard.initial_effect(c)
 	aux.AddLevel(c,3)

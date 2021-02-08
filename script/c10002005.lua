@@ -1,4 +1,4 @@
---Ikkakumon (ST2-05)
+--ST2-05 Ikkakumon
 local scard,sid=aux.GetID()
 function scard.initial_effect(c)
 	aux.AddLevel(c,4)

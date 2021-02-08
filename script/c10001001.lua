@@ -1,4 +1,4 @@
---Koromon (ST1-01)
+--ST1-01 Koromon
 local scard,sid=aux.GetID()
 function scard.initial_effect(c)
 	aux.AddLevel(c,2)

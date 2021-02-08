@@ -1,4 +1,4 @@
---MetalGarurumon (ST2-11)
+--ST2-11 MetalGarurumon
 local scard,sid=aux.GetID()
 function scard.initial_effect(c)
 	aux.AddLevel(c,6)

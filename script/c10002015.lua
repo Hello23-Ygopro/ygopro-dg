@@ -1,4 +1,4 @@
---Kaiser Nail (ST2-15)
+--ST2-15 Kaiser Nail
 local scard,sid=aux.GetID()
 function scard.initial_effect(c)
 	--play digimon

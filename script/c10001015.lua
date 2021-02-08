@@ -1,4 +1,4 @@
---Giga Destroyer (ST1-15)
+--ST1-15 Giga Destroyer
 local scard,sid=aux.GetID()
 function scard.initial_effect(c)
 	--delete

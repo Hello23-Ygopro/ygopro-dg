@@ -1,4 +1,4 @@
---Gaia Force (ST1-16)
+--ST1-16 Gaia Force
 local scard,sid=aux.GetID()
 function scard.initial_effect(c)
 	--delete

@@ -1,4 +1,4 @@
---Grizzlymon (ST2-07)
+--ST2-07 Grizzlymon
 local scard,sid=aux.GetID()
 function scard.initial_effect(c)
 	aux.AddLevel(c,4)

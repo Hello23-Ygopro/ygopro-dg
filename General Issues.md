@@ -8,17 +8,17 @@
 - You can only search for a card's Level by typing `Level:` in the search bar.
 - You can only search for a card's Type by typing `Type:` in the search bar.
 ## Deck Building
-- [ ] **Your Deck isn't limited to exactly 50 cards**
-- The player whose Deck isn't exactly 50 cards loses the game.
-- [ ] **You can have more than 5 cards in your Digi-Egg Deck**
-- The player whose Digi-Egg Deck has more than 5 cards loses the game.
-- [ ] **You can't shuffle your Digi-Egg Deck**
-- The only way to randomize cards in your Digi-Egg Deck is to take them out of the Digi-Egg Deck first.
+- [ ] **Your deck isn't limited to exactly 50 cards**
+- The player whose deck isn't exactly 50 cards loses the game.
+- [ ] **You can have more than 5 cards in your Digi-Egg deck**
+- The player whose Digi-Egg deck has more than 5 cards loses the game.
+- [ ] **You can't shuffle your Digi-Egg deck**
+- The only way to randomize cards in your Digi-Egg deck is to take them out of the Digi-Egg deck first.
 ## Game Setup
 - [ ] **The player who wins Rock Paper Scissors doesn't automatically go first**
 ## Zones
 - [ ] **Zones are positioned differently than in the actual card game**
-- Trash (Recycle Bin) is above the Deck instead of below it.
+- Trash (Recycle Bin) is above the deck instead of below it.
 - The Security Stack is on the top right instead of the middle left.
 - The Breeding Area is on the top middle instead of the bottom middle.
 - Check each player's Memory Gauge card to keep track of the amount of memory they have.
@@ -42,5 +42,5 @@
 ## Card Effects
 - [ ] **< Blocker > and [When Attacking] effects don't activate at the same time**
 - Instead of the < Blocker > effect resolving last, it will activate as soon as the [When Attacking] effect activated by attacking resolves.
-- [ ] **You don't always look through your entire Deck when you take a card from it**
+- [ ] **You don't always look through your entire deck when you take a card from it**
 - If you're required to take a specific card from your deck, the game will only show you the relevant cards, and your deck doesn't shuffle if you didn't take a card from it.

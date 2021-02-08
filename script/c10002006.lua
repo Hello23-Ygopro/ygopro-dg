@@ -1,4 +1,4 @@
---Garurumon (ST2-06)
+--ST2-06 Garurumon
 local scard,sid=aux.GetID()
 function scard.initial_effect(c)
 	aux.AddLevel(c,4)

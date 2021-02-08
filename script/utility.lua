@@ -378,7 +378,7 @@ function Auxiliary.TamerOperation(e,tp,eg,ep,ev,re,r,rp)
 end
 
 --Inherited effects
---e.g. "Koromon" (ST1-01)
+--e.g. "ST1-01 Koromon"
 function Auxiliary.AddInheritedEffect(c,op_func)
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
@@ -392,7 +392,7 @@ function Auxiliary.InheritedEffectCondition(e,tp,eg,ep,ev,re,r,rp)
 	return r==REASON_DIGIVOLVE
 end
 --"[Security]" effects
---e.g. "Tai Kamiya" (ST1-12)
+--e.g. "ST1-12 Tai Kamiya"
 function Auxiliary.AddSecurityEffect(c,op_func)
 	local e1=Effect.CreateEffect(c)
 	e1:SetCategory(CATEGORY_SECURITY)
@@ -403,7 +403,7 @@ function Auxiliary.AddSecurityEffect(c,op_func)
 	return e1
 end
 --"[Main]" effects
---e.g. "Shadow Wing" (ST1-13)
+--e.g. "ST1-13 Shadow Wing"
 function Auxiliary.AddMainEffect(c,op_func,targ_func)
 	targ_func=targ_func or Auxiliary.HintTarget
 	local e1=Effect.CreateEffect(c)
@@ -438,7 +438,7 @@ function Auxiliary.OptionCondition(e,tp,eg,ep,ev,re,r,rp)
 		or Duel.IsExistingMatchingCard(Auxiliary.OptionFilter,tp,LOCATION_ONFIELD,0,1,nil,TYPE_TAMER,color)
 end
 --"<Blocker> (When an opponent's Digimon attacks, you may suspend this Digimon to force the opponent to attack it instead.)"
---e.g. "Coredramon" (ST1-06)
+--e.g. "ST1-06 Coredramon"
 function Auxiliary.EnableBlocker(c)
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(DESC_BLOCKER)
@@ -472,9 +472,9 @@ function Auxiliary.BlockerOperation(e,tp,eg,ep,ev,re,r,rp)
 	Duel.RaiseSingleEvent(tc,EVENT_CUSTOM+EVENT_BECOME_BLOCKED,e,0,0,0,0)
 end
 --EFFECT_TYPE_SINGLE trigger effects
---code: EVENT_ATTACK_ANNOUNCE for "[When Attacking]" (e.g. "Coredramon" ST1-06)
---code: EVENT_PLAY_SUCCESS for "[When Digivolving]" (e.g. "Garudamon" ST1-08)
---code: EVENT_CUSTOM+EVENT_BECOME_BLOCKED for "When this Digimon is blocked" (e.g. "MetalGreymon" ST1-09)
+--code: EVENT_ATTACK_ANNOUNCE for "[When Attacking]" (e.g. "ST1-06 Coredramon")
+--code: EVENT_PLAY_SUCCESS for "[When Digivolving]" (e.g. "ST1-08 Garudamon")
+--code: EVENT_CUSTOM+EVENT_BECOME_BLOCKED for "When this Digimon is blocked" (e.g. "ST1-09 MetalGreymon")
 function Auxiliary.AddSingleTriggerEffect(c,desc_id,code,op_func,prop)
 	prop=prop or 0
 	local e1=Effect.CreateEffect(c)
@@ -488,7 +488,7 @@ function Auxiliary.AddSingleTriggerEffect(c,desc_id,code,op_func,prop)
 	return e1
 end
 --EFFECT_TYPE_FIELD trigger effects
---code: EVENT_UNSUSPEND_PHASE for "[Start of Your Turn]" (e.g. "Matt Ishida" ST2-12)
+--code: EVENT_UNSUSPEND_PHASE for "[Start of Your Turn]" (e.g. "ST2-12 Matt Ishida")
 function Auxiliary.AddTriggerEffect(c,desc_id,code,op_func,prop)
 	prop=prop or 0
 	local e1=Effect.CreateEffect(c)
@@ -507,7 +507,7 @@ function Auxiliary.AddTriggerEffect(c,desc_id,code,op_func,prop)
 	return e1
 end
 --add an effect to a card
---code: EFFECT_UPDATE_CHECK for "<Security Attack>" (e.g. "WarGreymon" ST1-11)
+--code: EFFECT_UPDATE_CHECK for "<Security Attack>" (e.g. "ST1-11 WarGreymon")
 function Auxiliary.EnableEffectCustom(c,code,con_func,s_range,o_range,targ_func)
 	--s_range: the location of your card to provide the effect to
 	--o_range: the location of your opponent's card to provide the effect to
@@ -527,9 +527,9 @@ function Auxiliary.EnableEffectCustom(c,code,con_func,s_range,o_range,targ_func)
 	return e1
 end
 --add a temporary effect to a card
---code: EFFECT_UPDATE_CHECK for "<Security Attack>" (e.g. "Greymon" ST1-07)
---code: EFFECT_CANNOT_ATTACK for "can't attack" (e.g. "Sorrow Blue" ST2-14)
---code: EFFECT_CANNOT_BLOCK for "can't block" (e.g. "Sorrow Blue" ST2-14)
+--code: EFFECT_UPDATE_CHECK for "<Security Attack>" (e.g. "ST1-07 Greymon")
+--code: EFFECT_CANNOT_ATTACK for "can't attack" (e.g. "ST2-14 Sorrow Blue")
+--code: EFFECT_CANNOT_BLOCK for "can't block" (e.g. "ST2-14 Sorrow Blue")
 function Auxiliary.AddTempEffectCustom(c,tc,code,reset_flag,reset_count)
 	--c: the card that adds the effect
 	--tc: the card to add the effect to
@@ -545,7 +545,7 @@ function Auxiliary.AddTempEffectCustom(c,tc,code,reset_flag,reset_count)
 	return e1
 end
 --"All of your Digimon get +N000 DP."
---e.g. "Tai Kamiya" (ST1-12)
+--e.g. "ST1-12 Tai Kamiya"
 function Auxiliary.AddContinuousUpdatePower(c,range,val,s_range,o_range,targ_func)
 	local e1=Effect.CreateEffect(c)
 	if s_range or o_range then
@@ -562,7 +562,7 @@ function Auxiliary.AddContinuousUpdatePower(c,range,val,s_range,o_range,targ_fun
 	c:RegisterEffect(e1)
 	return e1
 end
---e.g. "Koromon" (ST1-01)
+--e.g. "ST1-01 Koromon"
 function Auxiliary.AddTempEffectUpdatePower(c,tc,val,reset_flag,reset_count)
 	reset_flag=reset_flag or 0
 	if tc==c then reset_flag=reset_flag+RESET_DISABLE end
@@ -590,7 +590,7 @@ function Auxiliary.PlayCondition(e,tp,eg,ep,ev,re,r,rp)
 		and not Duel.CheckEvent(EVENT_ATTACK_ANNOUNCE)
 end
 --condition for "[Your Turn]"
---e.g. "Koromon" (ST1-01), "MetalGreymon" (ST1-09)
+--e.g. "ST1-01 Koromon", "ST1-09 MetalGreymon"
 function Auxiliary.TurnPlayerCondition(p)
 	return	function(e)
 				local tp=e:GetHandlerPlayer()
@@ -599,7 +599,7 @@ function Auxiliary.TurnPlayerCondition(p)
 			end
 end
 --condition for "[When Digivolving]"
---e.g. "Garudamon" (ST1-08)
+--e.g. "ST1-08 Garudamon"
 function Auxiliary.DigivolvingCondition(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsPlayType(SUMMON_TYPE_DIGIVOLVE)
 end
@@ -616,7 +616,7 @@ function Auxiliary.HintTarget(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.Hint(HINT_OPSELECTED,1-tp,e:GetDescription())
 end
 --target for effects that target cards
---e.g. "Sorrow Blue" (ST2-14)
+--e.g. "ST2-14 Sorrow Blue"
 function Auxiliary.TargetCardFunction(p,f,s,o,min,max,desc,ex,...)
 	--p: the player who targets the card (PLAYER_SELF or PLAYER_OPPO)
 	--f: filter function if the card is specified
@@ -645,8 +645,8 @@ function Auxiliary.TargetCardFunction(p,f,s,o,min,max,desc,ex,...)
 			end
 end
 --operation for effects that let a player (PLAYER_SELF or PLAYER_OPPO) do something
---f: Duel.RemoveMemory to make a player lose memory (e.g. "Coredramon" ST1-06)
---f: Duel.AddMemory to make a player gain memory (e.g. "MetalGreymon" ST1-09)
+--f: Duel.RemoveMemory to make a player lose memory (e.g. "ST1-06 Coredramon")
+--f: Duel.AddMemory to make a player gain memory (e.g. "ST1-09 MetalGreymon")
 function Auxiliary.DuelOperation(f,p,...)
 	local ext_params={...}
 	return	function(e,tp,eg,ep,ev,re,r,rp)
@@ -655,7 +655,7 @@ function Auxiliary.DuelOperation(f,p,...)
 			end
 end
 --operation for effects that increase/reduce digimon power
---e.g. "Garudamon" (ST1-08)
+--e.g. "ST1-08 Garudamon"
 function Auxiliary.UpdatePowerOperation(p,f,s,o,min,max,val,reset_flag,reset_count,ex,...)
 	local ext_params={...}
 	return	function(e,tp,eg,ep,ev,re,r,rp)
@@ -682,7 +682,7 @@ function Auxiliary.UpdatePowerOperation(p,f,s,o,min,max,val,reset_flag,reset_cou
 			end
 end
 --operation for effects that delete cards
---e.g. "Giga Destroyer" (ST1-15)
+--e.g. "ST1-15 Giga Destroyer"
 function Auxiliary.DeleteOperation(p,f,s,o,min,max,ex,...)
 	local ext_params={...}
 	return	function(e,tp,eg,ep,ev,re,r,rp)
@@ -702,7 +702,7 @@ function Auxiliary.DeleteOperation(p,f,s,o,min,max,ex,...)
 			end
 end
 --operation for effects that send cards to the hand
---e.g. "Cocytus Breath" (ST2-16)
+--e.g. "ST2-16 Cocytus Breath"
 function Auxiliary.SendtoHandOperation(p,f,s,o,min,max,conf,ex,...)
 	--p,min,max: nil to send all cards to the hand
 	--conf: true to show cards added from the deck to the opponent
@@ -739,7 +739,7 @@ function Auxiliary.SendtoHandOperation(p,f,s,o,min,max,conf,ex,...)
 			end
 end
 --operation for effects that target digimon to play
---e.g. "Kaiser Nail" (ST2-15)
+--e.g. "ST2-15 Kaiser Nail"
 function Auxiliary.TargetPlayDigimonOperation(pos)
 	--pos: POS_FACEUP_UNSUSPENDED to play in unsuspended or POS_FACEUP_SUSPENDED to play in suspended
 	return	function(e,tp,eg,ep,ev,re,r,rp)
@@ -750,7 +750,7 @@ function Auxiliary.TargetPlayDigimonOperation(pos)
 			end
 end
 --operation for effects that activate the [Main] effect of the card itself
---e.g. "Giga Destroyer" (ST1-15)
+--e.g. "ST1-15 Giga Destroyer"
 function Auxiliary.SelfActivateMainOperation(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local m=_G["c"..c:GetCode()]
@@ -759,7 +759,7 @@ function Auxiliary.SelfActivateMainOperation(e,tp,eg,ep,ev,re,r,rp)
 	if op then op(e,tp,eg,ep,ev,re,r,rp) end
 end
 --operation for effects that change the position of the card itself
---e.g. "MetalGarurumon" (ST2-11)
+--e.g. "ST2-11 MetalGarurumon"
 function Auxiliary.SelfChangePositionOperation(pos)
 	return	function(e,tp,eg,ep,ev,re,r,rp)
 				Duel.ChangePosition(e:GetHandler(),pos)
@@ -839,10 +839,10 @@ loadutility("rule.lua")
 	cause you to lose the game.
 	Q. There's 1 card left in my deck. What happens if I activate <Draw +2>?
 	A. Draw as many cards as you can. If you run out of cards to draw, the effect ends.
-	
+
 	Effects that make you Gain or Lose Memory
 	There are certain effects that can cause you to gain or lose memory. The memory gained or lost is gained or lost by the
 	player who uses the card.
-	For example, Hammer Spark has a security effect that says "Gain 2 memory" If that card is checked by your opponent's
+	For example, Hammer Spark has a security effect that says "Gain 2 memory". If that card is checked by your opponent's
 	attack, you gain 2 memory. From your opponent's point of view, they lose 2 memory.
 ]]

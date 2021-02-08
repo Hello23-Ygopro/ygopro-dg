@@ -1,4 +1,4 @@
---Matt Ishida (ST2-12)
+--ST2-12 Matt Ishida
 local scard,sid=aux.GetID()
 function scard.initial_effect(c)
 	--tamer

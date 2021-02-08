@@ -87,40 +87,40 @@ TYPE_SPSUMMON		=0x2000000	--(unused)
 TYPE_LINK			=0x4000000	--(unused)
 --Color
 COLOR_NONE		=0x0	--No color
-COLOR_COLORLESS	=0x4f	--Include any color
-COLOR_RED		=0x01	--Red
-COLOR_BLUE		=0x02	--Blue
-COLOR_YELLOW	=0x04	--Yellow
-COLOR_GREEN		=0x08	--Green
-COLOR_BLACK		=0x10	--Black
-COLOR_PURPLE	=0x20	--Purple
-COLOR_WHITE		=0x40	--White
+COLOR_COLORLESS	=0x4f	--All colors
+COLOR_RED		=0x01	--Red (Introduced by "ST1-01 Koromon")
+COLOR_BLUE		=0x02	--Blue (Introduced by "ST2-01 Tsunomon")
+COLOR_YELLOW	=0x04	--Yellow (Introduced by "ST3-01 Tokomon")
+COLOR_GREEN		=0x08	--Green (Introduced by "BT1-007 Tanemon")
+COLOR_WHITE		=0x10	--White (Introduced by "BT1-084 Omegamon")
+COLOR_BLACK		=0x20	--Black (Introduced by "BT2-005 Caprimon")
+COLOR_PURPLE	=0x40	--Purple (Introduced by "BT2-007 Pagumon")
 --Form
-FORM_INTRAINING	=0x1	--Introduced by "Koromon" (ST1-01)
-FORM_ROOKIE		=0x2	--Introduced by "Biyomon" (ST1-02)
-FORM_CHAMPION	=0x3	--Introduced by "Birdramon" (ST1-05)
-FORM_ULTIMATE	=0x4	--Introduced by "Garudamon" (ST1-08)
-FORM_MEGA		=0x5	--Introduced by "WarGreymon" (ST1-11)
+FORM_INTRAINING	=0x1	--Baby (Introduced by "ST1-01 Koromon")
+FORM_ROOKIE		=0x2	--Child (Introduced by "ST1-02 Biyomon")
+FORM_CHAMPION	=0x3	--Adult (Introduced by "ST1-05 Birdramon")
+FORM_ULTIMATE	=0x4	--Perfect (Introduced by "ST1-08 Garudamon")
+FORM_MEGA		=0x5	--Ultimate (Introduced by "ST1-11 WarGreymon")
 --Attribute
-ATTRIBUTE_NONE		=0x0	--Introduced by "Koromon" (ST1-01)
-ATTRIBUTE_VACCINE	=0x1	--Introduced by "Biyomon" (ST1-02)
-ATTRIBUTE_DATA		=0x2	--Introduced by "Dracomon" (ST1-04)
-ATTRIBUTE_VIRUS		=0x3	--Introduced by "Coredramon" (ST1-06)
+ATTRIBUTE_NONE		=0x0	--No attribute (Introduced by "ST1-01 Koromon")
+ATTRIBUTE_VACCINE	=0x1	--Vaccine (Introduced by "ST1-02 Biyomon")
+ATTRIBUTE_DATA		=0x2	--Data (Introduced by "ST1-04 Dracomon")
+ATTRIBUTE_VIRUS		=0x3	--Virus (Introduced by "ST1-06 Coredramon")
 --Type (Race)
-RACE_LESSER				=0x1	--Introduced by "Koromon" (ST1-01)
-RACE_BIRD				=0x2	--Introduced by "Biyomon" (ST1-02)
-RACE_REPTILE			=0x3	--Introduced by "Agumon" (ST1-03)
-RACE_DRAGON				=0x4	--Introduced by "Dracomon" (ST1-04)
-RACE_GIANT_BIRD			=0x5	--Introduced by "Birdramon" (ST1-05)
-RACE_DINOSAUR			=0x6	--Introduced by "Greymon" (ST1-07)
-RACE_BIRDKIN			=0x7	--Introduced by "Garudamon" (ST1-08)
-RACE_CYBORG				=0x8	--Introduced by "MetalGreymon" (ST1-09)
-RACE_HOLY_BEAST			=0x9	--Introduced by "Phoenixmon" (ST1-10)
-RACE_DRAGONKIN			=0xa	--Introduced by "WarGreymon" (ST1-11)
-RACE_SEA_BEAST			=0xb	--Introduced by "Gomamon" (ST2-02)
-RACE_BEAST				=0xc	--Introduced by "Bearmon" (ST2-04)
-RACE_BEASTKIN			=0xd	--Introduced by "WereGarurumon" (ST2-08)
-RACE_PLESIOSAUR			=0xe	--Introduced by "Plesiomon" (ST2-10)
+RACE_LESSER						=0x1	--Introduced by "ST1-01 Koromon"
+RACE_BIRD						=0x2	--Introduced by "ST1-02 Biyomon"
+RACE_REPTILE					=0x3	--Introduced by "ST1-03 Agumon"
+RACE_DRAGON						=0x4	--Introduced by "ST1-04 Dracomon"
+RACE_GIANT_BIRD					=0x5	--Introduced by "ST1-05 Birdramon"
+RACE_DINOSAUR					=0x6	--Introduced by "ST1-07 Greymon"
+RACE_BIRDKIN					=0x7	--Introduced by "ST1-08 Garudamon"
+RACE_CYBORG						=0x8	--Introduced by "ST1-09 MetalGreymon"
+RACE_HOLY_BEAST					=0x9	--Introduced by "ST1-10 Phoenixmon"
+RACE_DRAGONKIN					=0xa	--Introduced by "ST1-11 WarGreymon"
+RACE_SEA_BEAST					=0xb	--Introduced by "ST2-02 Gomamon"
+RACE_BEAST						=0xc	--Introduced by "ST2-04 Bearmon"
+RACE_BEASTKIN					=0xd	--Introduced by "ST2-08 WereGarurumon"
+RACE_PLESIOSAUR					=0xe	--Introduced by "ST2-10 Plesiomon"
 --Reason
 --The reason for sending a card to another location
 REASON_DESTROY		=0x1		--(unused)
@@ -156,7 +156,6 @@ LOCATION_REASON_TOFIELD	=0x1	--(unused)
 LOCATION_REASON_CONTROL	=0x2	--(unused)
 LOCATION_REASON_COUNT	=0x4	--(unused, only available in YGOPro Percy)
 --Win Reason
-WIN_REASON_ATTACK	=0x1	--had no more Security cards left
 WIN_REASON_INVALID	=0x10	--Invalid deck
 --Summon Type
 SUMMON_TYPE_NORMAL		=0x10000000	--(unused)

@@ -1,4 +1,4 @@
---Coredramon (ST1-06)
+--ST1-06 Coredramon
 local scard,sid=aux.GetID()
 function scard.initial_effect(c)
 	aux.AddLevel(c,4)

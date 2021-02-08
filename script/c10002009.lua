@@ -1,4 +1,4 @@
---Zudomon (ST2-09)
+--ST2-09 Zudomon
 local scard,sid=aux.GetID()
 function scard.initial_effect(c)
 	aux.AddLevel(c,5)

@@ -1,4 +1,4 @@
---Gabumon (ST2-03)
+--ST2-03 Gabumon
 local scard,sid=aux.GetID()
 function scard.initial_effect(c)
 	aux.AddLevel(c,3)

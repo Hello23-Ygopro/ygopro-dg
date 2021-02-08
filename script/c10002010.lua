@@ -1,4 +1,4 @@
---Plesiomon (ST2-10)
+--ST2-10 Plesiomon
 local scard,sid=aux.GetID()
 function scard.initial_effect(c)
 	aux.AddLevel(c,6)

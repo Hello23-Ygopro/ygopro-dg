@@ -1,4 +1,4 @@
---Greymon (ST1-07)
+--ST1-07 Greymon
 local scard,sid=aux.GetID()
 function scard.initial_effect(c)
 	aux.AddLevel(c,4)

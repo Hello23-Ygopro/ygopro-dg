@@ -1,4 +1,4 @@
---Hammer Spark (ST2-13)
+--ST2-13 Hammer Spark
 local scard,sid=aux.GetID()
 function scard.initial_effect(c)
 	--gain memory
