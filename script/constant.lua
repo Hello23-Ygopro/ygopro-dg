@@ -221,7 +221,7 @@ REASON_DIGIVOLVE	=0x200000	--Digivolved
 REASON_REPLACE		=0x1000000	--(unused)
 REASON_DRAW			=0x2000000	--(unused)
 REASON_REDIRECT		=0x4000000	--(unused)
-REASON_ZERODP		=0x8000000	--Deleted by dropping to 0 DP (required for "ST3-01 Tokomon")
+REASON_ZERO_DP		=0x8000000	--Deleted by dropping to 0 DP (required for "ST3-01 Tokomon")
 REASON_LINK			=0x10000000	--(unused)
 REASON_LOST_OVERLAY	=0x20000000	--(unused, not available in YGOPro Percy)
 --Location Reason

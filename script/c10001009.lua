@@ -18,6 +18,7 @@ function scard.op1(e,tp,eg,ep,ev,re,r,rp)
 	--gain memory
 	local e1=aux.AddSingleTriggerEffect(rc,0,EVENT_CUSTOM+EVENT_BECOME_BLOCKED,aux.DuelOperation(Duel.AddMemory,PLAYER_SELF,3))
 	e1:SetCondition(aux.TurnPlayerCondition(PLAYER_SELF))
+	e1:SetReset(RESET_EVENT+RESETS_STANDARD)
 	--add description
 	aux.RegisterDescription(rc,aux.Stringid(sid,1))
 end
