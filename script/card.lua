@@ -9,15 +9,6 @@ function Card.IsSetCard(c,...)
 	end
 	return false
 end
---check if a card's digimon power is equal to a given value
-local card_is_attack=Card.IsAttack
-function Card.IsAttack(c,atk)
-	if card_is_attack then
-		return card_is_attack(c,atk)
-	else
-		return c:GetAttack()==atk
-	end
-end
 --Overwritten Card functions
 --get a card's current play cost
 --Note: Overwritten to check for the correct value if it is changed while the card is not in LOCATION_MZONE
@@ -64,6 +55,47 @@ function Card.IsLevelAbove(c,lv)
 	return c:GetLevel()>=lv
 end
 Card.IsPlayCostAbove=Card.IsLevelAbove
+--get a card's current digimon power
+--Note: Overwritten to check for the correct value if it is changed while the card is not in LOCATION_MZONE
+local card_get_attack=Card.GetAttack
+function Card.GetAttack(c)
+	local res=c:GetOriginalPower()
+	local t1={c:IsHasEffect(EFFECT_UPDATE_POWER)}
+	for _,te1 in pairs(t1) do
+		if type(te1:GetValue())=="function" then
+			res=res+te1:GetValue()(te1,c)
+		else
+			res=res+te1:GetValue()
+		end
+	end
+	if c:IsLocation(LOCATION_MZONE) then
+		return card_get_attack(c)
+	else
+		return res
+	end
+end
+Card.GetPower=Card.GetAttack
+--check if a card's digimon power is equal to a given value
+--Note: See Card.GetPower
+local card_is_attack=Card.IsAttack
+function Card.IsAttack(c,atk)
+	return c:GetAttack()==atk
+end
+Card.IsPower=Card.IsAttack
+--check if a card's digimon power is less than or equal to a given value
+--Note: See Card.GetPower
+local card_is_attack_below=Card.IsAttackBelow
+function Card.IsAttackBelow(c,atk)
+	return c:GetAttack()<=atk
+end
+Card.IsPowerBelow=Card.IsAttackBelow
+--check if a card's digimon power is greater than or equal to a given value
+--Note: See Card.GetPower
+local card_is_attack_above=Card.IsAttackAbove
+function Card.IsAttackAbove(c,atk)
+	return c:GetAttack()>=atk
+end
+Card.IsPowerAbove=Card.IsAttackAbove
 --get a card's position
 --Note: Overwritten to check if a card is suspended in LOCATION_SZONE
 local card_get_position=Card.GetPosition
@@ -300,14 +332,8 @@ Card.GetColor=Card.GetAttribute
 Card.GetOriginalColor=Card.GetOriginalAttribute
 --check if a card has a given color
 Card.IsColor=Card.IsAttribute
---get a card's current digimon power
-Card.GetPower=Card.GetAttack
---check if a card's digimon power is equal to a given value
-Card.IsPower=Card.IsAttack
---check if a card's digimon power is less than or equal to a given value
-Card.IsPowerBelow=Card.IsAttackBelow
---check if a card's digimon power is greater than or equal to a given value
-Card.IsPowerAbove=Card.IsAttackAbove
+--get a card's original digimon power
+Card.GetOriginalPower=Card.GetBaseAttack
 --get a digimon's play type (SUMMON_TYPE)
 Card.GetPlayType=Card.GetSummonType
 --check what a digimon's play type (SUMMON_TYPE) is

@@ -114,6 +114,7 @@ function Rule.ApplyRules(e,tp,eg,ep,ev,re,r,rp)
 	e6:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
 	e6:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 	e6:SetCode(EVENT_ATTACK_PLAYER)
+	e6:SetCondition(Rule.CheckCondition)
 	e6:SetOperation(Rule.CheckOperation)
 	Duel.RegisterEffect(e6,0)
 	--trash resolved cards
@@ -283,57 +284,70 @@ function Rule.AttackTapOperation(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 --check security
+function Rule.CheckCondition(e)
+	return Duel.GetAttackTarget()==nil
+end
 function Rule.CheckOperation(e,tp,eg,ep,ev,re,r,rp)
 	local a=Duel.GetAttacker()
-	local ct=a:GetCheckCount()
-	if not a or Duel.GetAttackTarget() or ct<=0 then return end
 	local cp=a:GetControler()
-	for i=1,ct do
-		local g=Duel.GetFieldGroup(cp,0,LOCATION_SECURITY)
-		local c=g:GetFirst()
-		if not a or not a:IsOnField() or a:IsStatus(STATUS_BATTLE_DESTROYED) or not c then break end
-		--ignore yugioh rules
-		--no battle damage
-		local e0=Effect.CreateEffect(c)
-		e0:SetType(EFFECT_TYPE_FIELD)
-		e0:SetCode(EFFECT_CHANGE_DAMAGE)
-		e0:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
-		e0:SetTargetRange(1,1)
-		e0:SetValue(0)
-		e0:SetReset(RESET_PHASE+PHASE_DAMAGE)
-		Duel.RegisterEffect(e0,tp)
-		--workaround to flip over the top security card
-		Duel.SendtoHand(c,PLAYER_OWNER,REASON_RULE)
-		Duel.ConfirmCards(1-c:GetControler(),c)
-		if c:IsType(TYPE_DIGIMON) then
-			--become security digimon
-			local e1=Effect.CreateEffect(c)
-			e1:SetType(EFFECT_TYPE_SINGLE)
-			e1:SetCode(EFFECT_CHANGE_TYPE)
-			e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_IGNORE_IMMUNE)
-			e1:SetValue(TYPE_MONSTER+TYPE_SECURITY)
-			e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-			c:RegisterEffect(e1)
-			--battle
-			Duel.CalculateDamage(a,c)
-			--trash (damage step end)
-			local e2=Effect.CreateEffect(c)
-			e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-			e2:SetCode(EVENT_DAMAGE_STEP_END)
-			e2:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
-			e2:SetLabelObject(c)
-			e2:SetOperation(function(e,tp,eg,ep,ev,re,r,rp)
-				local c=e:GetLabelObject()
-				if not c:IsLocation(LOCATION_TRASH) then
-					Duel.Trash(c,REASON_RULE)
-				end
-			end)
-			e2:SetReset(RESET_PHASE+PHASE_DAMAGE)
-			Duel.RegisterEffect(e2,tp)
+	local ct=a:GetCheckCount()
+	if ct>0 then
+		for i=1,ct do
+			local g=Duel.GetFieldGroup(cp,0,LOCATION_SECURITY)
+			local c=g:GetFirst()
+			if not a:IsOnField() or a:IsStatus(STATUS_BATTLE_DESTROYED) or not c then break end
+			--ignore yugioh rules
+			--no battle damage
+			Rule.no_battle_damge(c,tp)
+			--workaround to flip over the top security card
+			Duel.SendtoHand(c,PLAYER_OWNER,REASON_RULE)
+			Duel.ConfirmCards(1-c:GetControler(),c)
+			if c:IsType(TYPE_DIGIMON) then
+				--become security digimon
+				local e1=Effect.CreateEffect(c)
+				e1:SetType(EFFECT_TYPE_SINGLE)
+				e1:SetCode(EFFECT_CHANGE_TYPE)
+				e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_IGNORE_IMMUNE)
+				e1:SetValue(TYPE_MONSTER+TYPE_SECURITY)
+				e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+				c:RegisterEffect(e1)
+				--battle
+				Duel.CalculateDamage(a,c)
+				--trash (damage step end)
+				local e2=Effect.CreateEffect(c)
+				e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+				e2:SetCode(EVENT_DAMAGE_STEP_END)
+				e2:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
+				e2:SetLabelObject(c)
+				e2:SetOperation(function(e,tp,eg,ep,ev,re,r,rp)
+					local c=e:GetLabelObject()
+					if not c:IsLocation(LOCATION_TRASH) then
+						Duel.Trash(c,REASON_RULE)
+					end
+				end)
+				e2:SetReset(RESET_PHASE+PHASE_DAMAGE)
+				Duel.RegisterEffect(e2,tp)
+			end
+			--raise event for "[Security]" effects
+			Duel.RaiseSingleEvent(c,EVENT_CUSTOM+EVENT_CHECK_SECURITY,e,0,0,0,0)
 		end
-		--raise event for "[Security]" effects
-		Duel.RaiseSingleEvent(c,EVENT_CUSTOM+EVENT_CHECK_SECURITY,e,0,0,0,0)
+	else
+		if Duel.GetSecurityCount(1-cp)>0 then
+			--ignore yugioh rules
+			--no battle damage
+			Rule.no_battle_damge(e:GetHandler(),tp)
+		end
 	end
+end
+function Rule.no_battle_damge(c,tp)
+	local e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_FIELD)
+	e1:SetCode(EFFECT_CHANGE_DAMAGE)
+	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+	e1:SetTargetRange(1,1)
+	e1:SetValue(0)
+	e1:SetReset(RESET_PHASE+PHASE_DAMAGE)
+	Duel.RegisterEffect(e1,tp)
 end
 --trash resolved cards
 function Rule.ResolveOperation1(e,tp,eg,ep,ev,re,r,rp)
@@ -344,6 +358,7 @@ function Rule.ResolveOperation1(e,tp,eg,ep,ev,re,r,rp)
 end
 function Rule.ResolveOperation2(e,tp,eg,ep,ev,re,r,rp)
 	local rc=re:GetHandler()
+	if re:IsHasProperty(EFFECT_FLAG_CANCEL_TRASH) then return end
 	if rc:GetFlagEffect(1)>0 then
 		Duel.Trash(rc,REASON_RULE)
 	end
@@ -364,7 +379,7 @@ function Rule.DeleteFilter(c)
 end
 function Rule.DeleteOperation(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetMatchingGroup(Rule.DeleteFilter,0,LOCATION_MZONE,LOCATION_MZONE,nil)
-	if Duel.Delete(g,REASON_RULE)>0 then
+	if Duel.Delete(g,REASON_ZERODP+REASON_RULE)>0 then
 		Duel.Readjust()
 	end
 end

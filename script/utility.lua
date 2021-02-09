@@ -203,6 +203,7 @@ function Auxiliary.AddDigivolutionCondition(c,cost,color,lv)
 	mt.digivolve_level=lv
 end
 --register EFFECT_FLAG_CLIENT_HINT to a card
+--Not fully implemented: Tooltip disappears when digimon has 2 or more digivolution cards
 function Auxiliary.RegisterDescription(c,desc,reset_flag,reset_count)
 	reset_flag=reset_flag or 0
 	reset_count=reset_count or 1
@@ -471,6 +472,16 @@ function Auxiliary.BlockerOperation(e,tp,eg,ep,ev,re,r,rp)
 	--raise event for "When this Digimon is blocked"
 	Duel.RaiseSingleEvent(tc,EVENT_CUSTOM+EVENT_BECOME_BLOCKED,e,0,0,0,0)
 end
+--"<Recovery +N (Deck)> (Place the top N cards of your deck on top of your security stack.)"
+--e.g. "ST3-09 Angewomon"
+function Auxiliary.RecoveryOperation(p,count,location)
+	return	function(e,tp,eg,ep,ev,re,r,rp)
+				local player=(p==PLAYER_SELF and tp) or (p==PLAYER_OPPO and 1-tp)
+				if bit.band(location,LOCATION_DECK)~=0 then
+					Duel.SendDecktoSecurity(player,count,REASON_EFFECT)
+				end
+			end
+end
 --EFFECT_TYPE_SINGLE trigger effects
 --code: EVENT_ATTACK_ANNOUNCE for "[When Attacking]" (e.g. "ST1-06 Coredramon")
 --code: EVENT_PLAY_SUCCESS for "[When Digivolving]" (e.g. "ST1-08 Garudamon")
@@ -489,6 +500,7 @@ function Auxiliary.AddSingleTriggerEffect(c,desc_id,code,op_func,prop)
 end
 --EFFECT_TYPE_FIELD trigger effects
 --code: EVENT_UNSUSPEND_PHASE for "[Start of Your Turn]" (e.g. "ST2-12 Matt Ishida")
+--code: EVENT_DELETED for "When a Digimon is deleted" (e.g. "ST3-01 Tokomon")
 function Auxiliary.AddTriggerEffect(c,desc_id,code,op_func,prop)
 	prop=prop or 0
 	local e1=Effect.CreateEffect(c)
@@ -603,6 +615,24 @@ end
 function Auxiliary.DigivolvingCondition(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsPlayType(SUMMON_TYPE_DIGIVOLVE)
 end
+--condition to check if a player's security cards are greater than or equal to a given value
+--e.g. "ST3-05 Angemon"
+function Auxiliary.IsSecurityAboveCondition(p,count)
+	return	function(e,tp,eg,ep,ev,re,r,rp)
+				local tp=e:GetHandlerPlayer()
+				local player=(p==PLAYER_SELF and tp) or (p==PLAYER_OPPO and 1-tp)
+				return Duel.IsSecurityCountAbove(player,count)
+			end
+end
+--condition to check if a player's security cards are less than or equal to a given value
+--e.g. "ST3-09 Angewomon"
+function Auxiliary.IsSecurityBelowCondition(p,count)
+	return	function(e,tp,eg,ep,ev,re,r,rp)
+				local tp=e:GetHandlerPlayer()
+				local player=(p==PLAYER_SELF and tp) or (p==PLAYER_OPPO and 1-tp)
+				return Duel.IsSecurityCountBelow(player,count)
+			end
+end
 --cost to play cards
 function Auxiliary.PlayCost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
@@ -644,14 +674,16 @@ function Auxiliary.TargetCardFunction(p,f,s,o,min,max,desc,ex,...)
 				Duel.SelectTarget(player,f,tp,s,o,min,max,exg,e,tp,eg,ep,ev,re,r,rp,table.unpack(ext_params))
 			end
 end
---operation for effects that let a player (PLAYER_SELF or PLAYER_OPPO) do something
+--operation for effects that let a player (PLAYER_SELF or PLAYER_OPPO) do something, or a card do something to itself
 --f: Duel.RemoveMemory to make a player lose memory (e.g. "ST1-06 Coredramon")
 --f: Duel.AddMemory to make a player gain memory (e.g. "ST1-09 MetalGreymon")
+--f: Duel.ChangePosition to change the position of the card (e.g. "ST2-11 MetalGarurumon")
+--f: Duel.SendtoHand to add the card to the hand (e.g. "ST3-14 Heaven's Charm")
 function Auxiliary.DuelOperation(f,p,...)
 	local ext_params={...}
 	return	function(e,tp,eg,ep,ev,re,r,rp)
-				local player=(p==PLAYER_SELF and tp) or (p==PLAYER_OPPO and 1-tp)
-				f(player,table.unpack(ext_params))
+				local player_or_card=(p==PLAYER_SELF and tp) or (p==PLAYER_OPPO and 1-tp) or p
+				f(player_or_card,table.unpack(ext_params))
 			end
 end
 --operation for effects that increase/reduce digimon power
@@ -665,7 +697,7 @@ function Auxiliary.UpdatePowerOperation(p,f,s,o,min,max,val,reset_flag,reset_cou
 				reset_flag=reset_flag or RESET_PHASE+PHASE_END
 				reset_count=reset_count or 1
 				local desc=(val>0 and HINTMSG_GAINPOWER) or (val<0 and HINTMSG_LOSEPOWER)
-				local g=Duel.GetMatchingGroup(aux.AND(Auxiliary.BattleAreaFilter,f),tp,s,o,ex,table.unpack(ext_params))
+				local g=Duel.GetMatchingGroup(Auxiliary.BattleAreaFilter(f),tp,s,o,ex,table.unpack(ext_params))
 				if g:GetCount()==0 then return end
 				if min and max then
 					Duel.Hint(HINT_SELECTMSG,player,desc)
@@ -758,11 +790,15 @@ function Auxiliary.SelfActivateMainOperation(e,tp,eg,ep,ev,re,r,rp)
 	local op=te:GetOperation()
 	if op then op(e,tp,eg,ep,ev,re,r,rp) end
 end
---operation for effects that change the position of the card itself
---e.g. "ST2-11 MetalGarurumon"
-function Auxiliary.SelfChangePositionOperation(pos)
+--operation for effects that increase/reduce the DP of the digimon itself
+--e.g. "ST3-01 Tokomon"
+function Auxiliary.SelfUpdatePowerOperation(val,reset_flag,reset_count)
 	return	function(e,tp,eg,ep,ev,re,r,rp)
-				Duel.ChangePosition(e:GetHandler(),pos)
+				local c=e:GetHandler()
+				reset_flag=reset_flag or RESET_PHASE+PHASE_END
+				reset_count=reset_count or 1
+				--gain/lose digimon power
+				Auxiliary.AddTempEffectUpdatePower(c,c,val,reset_flag,reset_count)
 			end
 end
 --filter for a card in the battle area

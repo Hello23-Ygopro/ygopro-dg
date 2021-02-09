@@ -10,6 +10,6 @@ function scard.initial_effect(c)
 	--digivolution condition
 	aux.AddDigivolutionCondition(c,4)
 	--unsuspend
-	local e1=aux.AddSingleTriggerEffect(c,0,EVENT_DAMAGE_STEP_END,aux.SelfChangePositionOperation(POS_FACEUP_UNSUSPENDED))
+	local e1=aux.AddSingleTriggerEffect(c,0,EVENT_DAMAGE_STEP_END,aux.DuelOperation(Duel.ChangePosition,c,POS_FACEUP_UNSUSPENDED))
 	e1:SetCountLimit(1)
 end

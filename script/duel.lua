@@ -220,6 +220,22 @@ function Duel.SendDecktoSecurity(player,count,reason)
 	Duel.DisableShuffleCheck()
 	return Duel.SendtoSecurity(g,POS_FACEDOWN,reason)
 end
+--get the number of security cards a player has
+function Duel.GetSecurityCount(player)
+	return Duel.GetFieldGroupCount(player,LOCATION_SECURITY,0)
+end
+--check if a player's security cards are equal to a given value
+function Duel.IsSecurityCount(player,count)
+	return Duel.GetSecurityCount(player)==count
+end
+--check if a player's security cards are less than or equal to a given value
+function Duel.IsSecurityCountBelow(player,count)
+	return Duel.GetSecurityCount(player)<=count
+end
+--check if a player's security cards are greater than or equal to a given value
+function Duel.IsSecurityCountAbove(player,count)
+	return Duel.GetSecurityCount(player)>=count
+end
 --send a digimon to its owner's breeding area
 function Duel.SendtoBreeding(targets)
 	if type(targets)=="Card" then targets=Group.FromCards(targets) end
