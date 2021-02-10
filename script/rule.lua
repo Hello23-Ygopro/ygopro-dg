@@ -379,7 +379,7 @@ function Rule.DeleteFilter(c)
 end
 function Rule.DeleteOperation(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetMatchingGroup(Rule.DeleteFilter,0,LOCATION_MZONE,LOCATION_MZONE,nil)
-	if Duel.Delete(g,REASON_ZERODP+REASON_RULE)>0 then
+	if Duel.Delete(g,REASON_ZERO_DP+REASON_RULE)>0 then
 		Duel.Readjust()
 	end
 end
