@@ -7,17 +7,11 @@ function scard.initial_effect(c)
 	aux.AddRace(c,RACE_LESSER)
 	--digi-egg
 	aux.EnableDigiEggAttribute(c)
-	--inherited effect
-	aux.AddInheritedEffect(c,scard.op1)
-end
---inherited effect
-function scard.op1(e,tp,eg,ep,ev,re,r,rp)
-	local rc=e:GetHandler():GetReasonCard()
 	--gain digimon power
-	local e1=aux.AddTempEffectUpdatePower(rc,rc,1000)
+	local e1=aux.AddInheritedUpdatePower(c,LOCATION_MZONE,1000)
 	e1:SetCondition(scard.con1)
 	--add description
-	aux.RegisterDescription(rc,aux.Stringid(sid,0))
+	aux.RegisterDescription(c,aux.Stringid(sid,0))
 end
 --gain digimon power
 function scard.con1(e)

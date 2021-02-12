@@ -203,11 +203,27 @@ function Auxiliary.AddDigivolutionCondition(c,cost,color,lv)
 	mt.digivolve_level=lv
 end
 --register EFFECT_FLAG_CLIENT_HINT to a card
---Not fully implemented: Tooltip disappears when digimon has 2 or more digivolution cards
-function Auxiliary.RegisterDescription(c,desc,reset_flag,reset_count)
-	reset_flag=reset_flag or 0
-	reset_count=reset_count or 1
-	c:RegisterFlagEffect(0,RESET_EVENT+RESETS_STANDARD-RESET_TOFIELD+reset_flag,EFFECT_FLAG_CLIENT_HINT,reset_count,0,desc)
+function Auxiliary.RegisterDescription(c,desc)
+	local e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
+	e1:SetCode(EVENT_BE_MATERIAL)
+	e1:SetCondition(Auxiliary.RegisterDescCondition)
+	e1:SetOperation(Auxiliary.RegisterDescOperation(desc))
+	c:RegisterEffect(e1)
+	return e1
+end
+function Auxiliary.RegisterDescCondition(e,tp,eg,ep,ev,re,r,rp)
+	return r==REASON_DIGIVOLVE
+end
+function Auxiliary.RegisterDescOperation(desc)
+	return	function(e,tp,eg,ep,ev,re,r,rp)
+				local c=e:GetHandler()
+				local code=c:GetCode()+300
+				local rc=c:GetReasonCard()
+				rc:RegisterFlagEffect(code,RESET_EVENT+RESETS_STANDARD,EFFECT_FLAG_CLIENT_HINT,1,0,desc)
+				local e1=Auxiliary.RegisterDescription(rc,desc)
+				e1:SetReset(RESET_EVENT+RESETS_STANDARD-RESET_LEAVE)
+			end
 end
 
 --digi-egg
@@ -378,20 +394,6 @@ function Auxiliary.TamerOperation(e,tp,eg,ep,ev,re,r,rp)
 	Duel.PlayTamer(c,tp)
 end
 
---Inherited effects
---e.g. "ST1-01 Koromon"
-function Auxiliary.AddInheritedEffect(c,op_func)
-	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
-	e1:SetCode(EVENT_BE_MATERIAL)
-	e1:SetCondition(Auxiliary.InheritedEffectCondition)
-	e1:SetOperation(op_func)
-	c:RegisterEffect(e1)
-	return e1
-end
-function Auxiliary.InheritedEffectCondition(e,tp,eg,ep,ev,re,r,rp)
-	return r==REASON_DIGIVOLVE
-end
 --"[Security]" effects
 --e.g. "ST1-12 Tai Kamiya"
 function Auxiliary.AddSecurityEffect(c,op_func)
@@ -498,6 +500,19 @@ function Auxiliary.AddSingleTriggerEffect(c,desc_id,code,op_func,prop)
 	c:RegisterEffect(e1)
 	return e1
 end
+--EFFECT_TYPE_SINGLE Inherited trigger effects
+function Auxiliary.AddSingleInheritedTriggerEffect(c,desc_id,code,op_func,prop)
+	prop=prop or 0
+	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(c:GetOriginalCode(),desc_id))
+	e1:SetType(EFFECT_TYPE_INHERITED+EFFECT_TYPE_TRIGGER_F)
+	e1:SetCode(code)
+	e1:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL+prop)
+	e1:SetTarget(Auxiliary.HintTarget)
+	e1:SetOperation(op_func)
+	c:RegisterEffect(e1)
+	return e1
+end
 --EFFECT_TYPE_FIELD trigger effects
 --code: EVENT_UNSUSPEND_PHASE for "[Start of Your Turn]" (e.g. "ST2-12 Matt Ishida")
 --code: EVENT_DELETED for "When a Digimon is deleted" (e.g. "ST3-01 Tokomon")
@@ -506,6 +521,24 @@ function Auxiliary.AddTriggerEffect(c,desc_id,code,op_func,prop)
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(c:GetOriginalCode(),desc_id))
 	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
+	e1:SetCode(code)
+	e1:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL+prop)
+	if c:IsType(TYPE_DIGIMON) then
+		e1:SetRange(LOCATION_MZONE)
+	elseif c:IsType(TYPE_TAMER) then
+		e1:SetRange(LOCATION_SZONE)
+	end
+	e1:SetTarget(Auxiliary.HintTarget)
+	e1:SetOperation(op_func)
+	c:RegisterEffect(e1)
+	return e1
+end
+--EFFECT_TYPE_FIELD Inherited trigger effects
+function Auxiliary.AddInheritedTriggerEffect(c,desc_id,code,op_func,prop)
+	prop=prop or 0
+	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(c:GetOriginalCode(),desc_id))
+	e1:SetType(EFFECT_TYPE_INHERITED+EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
 	e1:SetCode(code)
 	e1:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL+prop)
 	if c:IsType(TYPE_DIGIMON) then
@@ -531,6 +564,23 @@ function Auxiliary.EnableEffectCustom(c,code,con_func,s_range,o_range,targ_func)
 		if targ_func then e1:SetTarget(targ_func) end
 	else
 		e1:SetType(EFFECT_TYPE_SINGLE)
+	end
+	e1:SetCode(code)
+	e1:SetProperty(EFFECT_FLAG_SET_AVAILABLE)
+	if con_func then e1:SetCondition(con_func) end
+	c:RegisterEffect(e1)
+	return e1
+end
+--Inherited effect that adds an effect to a card
+function Auxiliary.EnableInheritedEffectCustom(c,code,con_func,s_range,o_range,targ_func)
+	local e1=Effect.CreateEffect(c)
+	if s_range or o_range then
+		e1:SetType(EFFECT_TYPE_INHERITED+EFFECT_TYPE_FIELD)
+		e1:SetRange(LOCATION_ONFIELD)
+		e1:SetTargetRange(s_range,o_range)
+		if targ_func then e1:SetTarget(targ_func) end
+	else
+		e1:SetType(EFFECT_TYPE_INHERITED)
 	end
 	e1:SetCode(code)
 	e1:SetProperty(EFFECT_FLAG_SET_AVAILABLE)
@@ -575,6 +625,23 @@ function Auxiliary.AddContinuousUpdatePower(c,range,val,s_range,o_range,targ_fun
 	return e1
 end
 --e.g. "ST1-01 Koromon"
+function Auxiliary.AddInheritedUpdatePower(c,range,val,s_range,o_range,targ_func)
+	local e1=Effect.CreateEffect(c)
+	if s_range or o_range then
+		e1:SetType(EFFECT_TYPE_INHERITED+EFFECT_TYPE_FIELD)
+		e1:SetTargetRange(s_range,o_range)
+		if targ_func then e1:SetTarget(targ_func) end
+	else
+		e1:SetType(EFFECT_TYPE_INHERITED)
+		e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+	end
+	e1:SetCode(EFFECT_UPDATE_POWER)
+	e1:SetRange(range)
+	e1:SetValue(val)
+	c:RegisterEffect(e1)
+	return e1
+end
+--e.g. "ST1-08 Garudamon"
 function Auxiliary.AddTempEffectUpdatePower(c,tc,val,reset_flag,reset_count)
 	reset_flag=reset_flag or 0
 	if tc==c then reset_flag=reset_flag+RESET_DISABLE end

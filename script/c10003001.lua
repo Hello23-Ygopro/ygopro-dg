@@ -7,19 +7,12 @@ function scard.initial_effect(c)
 	aux.AddRace(c,RACE_LESSER)
 	--digi-egg
 	aux.EnableDigiEggAttribute(c)
-	--inherited effect
-	aux.AddInheritedEffect(c,scard.op1)
-end
---inherited effect
-function scard.op1(e,tp,eg,ep,ev,re,r,rp)
-	local rc=e:GetHandler():GetReasonCard()
 	--gain effect (gain digimon power)
-	local e1=aux.AddTriggerEffect(rc,0,EVENT_DELETED,aux.SelfUpdatePowerOperation(1000,RESET_PHASE+PHASE_END))
+	local e1=aux.AddInheritedTriggerEffect(c,0,EVENT_DELETED,aux.SelfUpdatePowerOperation(1000,RESET_PHASE+PHASE_END))
 	e1:SetCountLimit(1)
 	e1:SetCondition(scard.con1)
-	e1:SetReset(RESET_EVENT+RESETS_STANDARD)
 	--add description
-	aux.RegisterDescription(rc,aux.Stringid(sid,1))
+	aux.RegisterDescription(c,aux.Stringid(sid,1))
 end
 --gain effect (gain digimon power)
 function scard.cfilter(c,tp)

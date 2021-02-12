@@ -1,3 +1,9 @@
+--Fix missing Card function errors
+--check if the previous controller of the card is a given player
+local card_is_previous_controler=Card.IsPreviousControler
+function Card.IsPreviousControler(c,player)
+	return card_is_previous_controler(c,player) or c:GetPreviousControler()==player
+end
 --Temporary Card functions
 --check if a card has a given setname
 --Note: Overwritten to check for an infinite number of setnames

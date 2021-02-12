@@ -391,7 +391,7 @@ EFFECT_TYPE_QUICK_O		=0x0100	--Optional Quick Effect
 EFFECT_TYPE_TRIGGER_F	=0x0200	--Mandatory Trigger Effect
 EFFECT_TYPE_QUICK_F		=0x0400	--Mandatory Quick Effect
 EFFECT_TYPE_CONTINUOUS	=0x0800	--Continuous Effect, non-Chaining effect
-EFFECT_TYPE_XMATERIAL	=0x1000	--(unused)
+EFFECT_TYPE_INHERITED	=0x1000	--Inherited Effect
 EFFECT_TYPE_GRANT		=0x2000	--Effect granted to another card
 EFFECT_TYPE_TARGET		=0x4000	--(unused, not available in YGOPro Percy)
 --Flag

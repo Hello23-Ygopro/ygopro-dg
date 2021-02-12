@@ -9,16 +9,9 @@ function scard.initial_effect(c)
 	aux.EnableDigimonAttribute(c)
 	--digivolution condition
 	aux.AddDigivolutionCondition(c,2)
-	--inherited effect
-	aux.AddInheritedEffect(c,scard.op1)
-end
---inherited effect
-function scard.op1(e,tp,eg,ep,ev,re,r,rp)
-	local rc=e:GetHandler():GetReasonCard()
 	--gain memory
-	local e1=aux.AddSingleTriggerEffect(rc,0,EVENT_ATTACK_ANNOUNCE,aux.DuelOperation(Duel.AddMemory,PLAYER_SELF,1))
+	local e1=aux.AddSingleInheritedTriggerEffect(c,0,EVENT_ATTACK_ANNOUNCE,aux.DuelOperation(Duel.AddMemory,PLAYER_SELF,1))
 	e1:SetCondition(aux.IsSecurityAboveCondition(PLAYER_SELF,4))
-	e1:SetReset(RESET_EVENT+RESETS_STANDARD)
 	--add description
-	aux.RegisterDescription(rc,aux.Stringid(sid,1))
+	aux.RegisterDescription(c,aux.Stringid(sid,1))
 end

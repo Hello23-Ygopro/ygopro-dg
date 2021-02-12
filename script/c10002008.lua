@@ -9,18 +9,11 @@ function scard.initial_effect(c)
 	aux.EnableDigimonAttribute(c)
 	--digivolution condition
 	aux.AddDigivolutionCondition(c,3)
-	--inherited effect
-	aux.AddInheritedEffect(c,scard.op1)
-end
---inherited effect
-function scard.op1(e,tp,eg,ep,ev,re,r,rp)
-	local rc=e:GetHandler():GetReasonCard()
 	--security attack
-	local e1=aux.AddTempEffectCustom(rc,rc,EFFECT_UPDATE_CHECK)
-	e1:SetCondition(scard.con1)
+	local e1=aux.EnableInheritedEffectCustom(c,EFFECT_UPDATE_CHECK,scard.con1)
 	e1:SetValue(1)
 	--add description
-	aux.RegisterDescription(rc,aux.Stringid(sid,0))
+	aux.RegisterDescription(c,aux.Stringid(sid,0))
 end
 --security attack
 function scard.cfilter(c)

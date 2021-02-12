@@ -40,7 +40,7 @@
 - [ ] **You can't suspend your cards to attack with them**
 - When your card attacks, it is suspended at the end of the [damage step](https://yugioh.fandom.com/wiki/Damage_Step).
 ## Card Effects
-- [ ] **Some card descriptions disappear as soon as a Digimon has 2 or more digivolution cards**
+- [x] **Some card descriptions disappear as soon as a Digimon has 2 or more digivolution cards**
 - [ ] **Some on-screen descriptions of activated Inherited effects are wrong**
 - [ ] **Some on-screen descriptions of activated Main effects won't appear**
 - [ ] **You don't always look through your entire deck when you take a card from it**
